@@ -1,0 +1,20 @@
+{
+  "name": "heuulzp-skills",
+  "interface": {
+    "displayName": "heuuLZP Skills"
+  },
+  "plugins": [
+    {
+      "name": "hotpot",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hotpot"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Coding"
+    }
+  ]
+}

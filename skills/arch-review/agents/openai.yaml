@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Review"
+  short_description: "复盘代码改动中的架构盲点并形成持续反馈"
+  default_prompt: "Use $arch-review to reflect on the architecture decisions in my latest change."

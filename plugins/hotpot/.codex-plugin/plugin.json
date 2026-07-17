@@ -1,0 +1,39 @@
+{
+  "name": "hotpot",
+  "version": "0.3.0",
+  "description": "Atomic requirement-collaboration skills for structured analysis before coding",
+  "author": {
+    "name": "heuuLZP",
+    "email": "heuuLZP@163.com"
+  },
+  "homepage": "https://github.com/heuuLZP/skills",
+  "repository": "https://github.com/heuuLZP/skills",
+  "license": "MIT",
+  "keywords": [
+    "requirements",
+    "analysis",
+    "specification",
+    "planning",
+    "skills",
+    "hotpot"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Hotpot Skills",
+    "shortDescription": "Atomic skills for requirement analysis and technical planning",
+    "longDescription": "Understand raw requirements, inspect existing systems, enumerate use cases, define behavior, plan implementation, review plans, and check completed work.",
+    "developerName": "heuuLZP",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Turn this raw request into a Hotpot requirement card.",
+      "Analyze this feature request with Hotpot.",
+      "Write a behavior spec for this requirement."
+    ],
+    "brandColor": "#F97316"
+  }
+}

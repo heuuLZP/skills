@@ -1,0 +1,23 @@
+{
+  "skill_name": "ai-reflect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/ai-reflect",
+      "expected_output": "扫描近期 Claude Code 与 Codex 对话历史，生成四维度分析报告，保存到 ~/.agents/data/ai-reflect/reports/ 目录",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我看看最近一周我使用 AI 的情况，有没有过度依赖",
+      "expected_output": "理解用户意图为 AI 使用复盘，扫描7天 Claude Code 与 Codex 对话，生成包含思考深度/职责分配/信源多样性/能力趋势的报告",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "分析下最近一个月的 AI 协作质量",
+      "expected_output": "理解时间范围为1个月，扫描30天对话，生成报告并与历史报告对比（如有）",
+      "files": []
+    }
+  ]
+}

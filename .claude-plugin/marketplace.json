@@ -1,0 +1,19 @@
+{
+  "name": "heuulzp-skills",
+  "owner": {
+    "name": "heuuLZP",
+    "email": "heuuLZP@163.com"
+  },
+  "metadata": {
+    "description": "Personal skills and plugins for Claude Code and Codex"
+  },
+  "plugins": [
+    {
+      "name": "hotpot",
+      "source": "./plugins/hotpot",
+      "description": "Atomic requirement-collaboration skills for structured analysis before coding",
+      "version": "0.3.0",
+      "strict": true
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "分析改动、拆分批次并生成合适的 Git 提交"
+  default_prompt: "Use $commit to analyze and commit the current Git changes."

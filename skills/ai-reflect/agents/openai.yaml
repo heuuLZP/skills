@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Reflect"
+  short_description: "分析 Claude Code 与 Codex 中的人机协作习惯"
+  default_prompt: "Use $ai-reflect to review how I have collaborated with AI over the last seven days."

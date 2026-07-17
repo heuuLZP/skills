@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI 辅助人工 Review"
+  short_description: "AI 分批暂存并说明改动，由人逐批审阅和决定是否提交"
+  default_prompt: "Use $human-review to help me review and commit the current changes in batches."

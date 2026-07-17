@@ -1,0 +1,20 @@
+{
+  "name": "hotpot",
+  "description": "Atomic requirement-collaboration skills for structured analysis before coding",
+  "version": "0.3.0",
+  "author": {
+    "name": "heuuLZP",
+    "email": "heuuLZP@163.com"
+  },
+  "homepage": "https://github.com/heuuLZP/skills",
+  "repository": "https://github.com/heuuLZP/skills",
+  "license": "MIT",
+  "keywords": [
+    "requirements",
+    "analysis",
+    "specification",
+    "planning",
+    "skills",
+    "hotpot"
+  ]
+}
