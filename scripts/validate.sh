@@ -38,6 +38,7 @@ for reference in artifact-templates.md output-style-guide.md review-checklist.md
 done
 
 python3 -m unittest discover -s "$REPO_ROOT/skills/ai-reflect/tests" -p 'test_*.py'
+python3 -m unittest discover -s "$REPO_ROOT/plugins/hotpot/tests" -p 'test_*.py'
 
 if rg -n '/Users/night|mingyuanyun|myscrm' \
   "$REPO_ROOT/skills" "$REPO_ROOT/plugins"; then

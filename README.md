@@ -25,9 +25,9 @@ Hotpot 以整包 plugin 发布，因为 8 个 skill 共享上下文解析规则�
 |---|---|---|---|
 | `hot-requirement-analysis` | 收到原始需求、工单、PRD 或讨论记录时 | `requirement.md`：目标、范围、约束、澄清点和下一步建议 | 不看代码、不写规格、不拆模块 |
 | `hot-pre-analysis` | 对现有实现、数据流或复用点不熟悉时 | `pre-analysis.md`：现状、代码结构、依赖、风险和未知项 | 不定义业务规则或技术方案 |
-| `hot-module-split` | 需求包含多个职责，需要明确模块边界时 | `module-split.md`：模块、边界、依赖和推荐顺序 | 不设计模块内部实现 |
-| `hot-use-cases` | 主流程、异常、边界、竞态或验收口径复杂时 | `use-cases.md`：完整场景与验收案例 | 不做技术设计 |
-| `hot-spec` | 需要锁定业务规则和行为契约时 | `spec.md`：规则、状态、边界、验收与验证要求 | 不决定目录、组件或文件职责 |
+| `hot-module-split` | 需求包含多个职责，或模块内可能还有多个独立业务入口时 | `module-split.md`：模块、边界、依赖、业务入口索引和 artifact mode 建议 | 不展开入口内部规则 |
+| `hot-use-cases` | 主流程、异常、边界、竞态或验收口径复杂时 | 简单模块写 `use-cases.md`；复杂模块按 `entries/*.md` 写场景 | 不做技术设计 |
+| `hot-spec` | 需要锁定业务规则和行为契约时 | 简单模块写 `spec.md`；复杂模块维护共享规则和入口局部规则 | 不决定目录、组件或文件职责 |
 | `hot-plan` | 规格明确，需要技术落地方案时 | `plan.md`：目录、组件、状态、数据流、文件职责和验证点 | 不写代码、不拆执行清单 |
 | `hot-plan-review` | 执行前需要检查 spec/plan 是否遗漏或冲突时 | `plan-review.md`：按严重度排列的问题、建议与结论 | 不修改代码、不代替实现 |
 | `hot-check` | 实现完成后，需要对照前序产物检查闭环时 | `check.md`：通过结论、缺口、验证证据和改动摘要 | 不做泛化代码审查或深度排错 |
@@ -63,6 +63,13 @@ hot-requirement-analysis
 → 实现
 → hot-check
 ```
+
+模块业务产物支持两种模式：
+
+- `single-file`：职责单一，继续使用 `use-cases.md` 和 `spec.md`。
+- `entry-bundle`：包含多个可独立理解和验收的业务入口，使用 `README.md`、`shared-rules.md` 和 `entries/*.md`。
+
+业务入口可以是页面入口、操作流程、系统触发流程或数据处理流程。共享规则只写一次，入口局部问题留在对应 entry；下游 skill 会先解析 artifact mode，不依赖固定文件名猜测业务上下文。
 
 这些步骤由人选择，不会由某个 skill 自动触发下一个 skill。Hotpot 产物统一保存到当前项目的 `.hotpot/<requirement>/`。
 
