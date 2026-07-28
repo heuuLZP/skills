@@ -49,8 +49,9 @@ Do not:
    - `hot-pre-analysis`: existing system behavior, code location, data flow, or reuse risk must be known first.
    - `hot-use-cases`: branches, failures, races, or acceptance boundaries are the main risk.
    - `hot-spec`: requirement is small and clear enough to write a behavior contract.
-7. Write the requirement card using the `Requirement` template from `../../references/artifact-templates.md`.
-8. Include `Metadata` and update `.hotpot/[req]/_meta.md` `Updated`.
+7. When the source already contains multiple independent business entries or main flows, prefer `hot-module-split` and note that each resulting module must still run the business-entry complexity check. Do not create entry files during requirement analysis.
+8. Write the requirement card using the `Requirement` template from `../../references/artifact-templates.md`.
+9. Include `Metadata` and update `.hotpot/[req]/_meta.md` `Updated`.
 
 ## Output Requirements
 

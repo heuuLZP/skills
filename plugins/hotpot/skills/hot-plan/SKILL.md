@@ -1,6 +1,6 @@
 ---
 name: hot-plan
-description: Use when a behavior spec is ready and the work needs a technical implementation plan covering directory organization, components, state, data flow, file responsibilities, comments, and verification points.
+description: Use when canonical hotpot business artifacts are ready and the work needs a technical implementation plan covering directories, components, state, data flow, file responsibilities, business-entry coverage, comments, and verification points.
 ---
 
 # Hotpot Plan
@@ -35,16 +35,20 @@ Do not:
 ## Workflow
 
 1. Resolve requirement and scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
-2. Read same-scope `spec.md` and `pre-analysis.md`; read `.hotpot/[req]/requirement.md` only as scope/constraint background.
-3. Inspect code paths needed to avoid inventing architecture.
-4. Design files and responsibilities. Prefer existing project patterns.
-5. Design state and data flow, including request/cache/race handling.
-6. Decide interaction infrastructure:
+2. For module scope, perform Artifact Resolution and Business Entry Resolution before reading business artifacts.
+3. Read `pre-analysis.md` and canonical business artifacts:
+   - single-file: `spec.md` and relevant `use-cases.md`,
+   - entry-bundle: `README.md`, `shared-rules.md`, and the selected or all relevant entries.
+   Read `.hotpot/[req]/requirement.md` only as scope/constraint background.
+4. Inspect code paths needed to avoid inventing architecture.
+5. Design files and responsibilities. Prefer existing project patterns and mark every responsibility and verification point with the business entries it covers.
+6. Design state and data flow, including request/cache/race handling and contracts shared across entries.
+7. Decide interaction infrastructure:
    - Use mature libraries or existing wrappers for drag/drop, virtual scroll, forms, data fetching, caching, and concurrency.
    - Do not hand-roll well-established infrastructure unless the spec requires it.
-7. Add comment/JSDoc requirements only where logic is non-obvious.
-8. Define verification points from spec scenarios.
-9. Include `Metadata`; for module scope, update `.last-module`.
+8. Add comment/JSDoc requirements only where logic is non-obvious.
+9. Define verification points from canonical scenarios and shared rules.
+10. Include `Metadata`; for module scope, update `.last-module`.
 
 ## P19 Verification Rule
 
@@ -56,7 +60,7 @@ Default verification is:
 
 Only require new unit tests when `hot-spec` explicitly says `需单测：是`. If it does, say where the tests belong and which behavior they cover.
 
-If `requirement.md` appears to conflict with `spec.md`, stop and recommend revising `hot-spec`; do not bypass spec decisions in the technical plan.
+If `requirement.md` conflicts with the canonical business artifacts, stop and recommend revising `hot-spec`; do not bypass confirmed decisions in the technical plan.
 
 ## Output Requirements
 
@@ -72,6 +76,8 @@ The plan must be enough for `/goal` to implement without re-deciding architectur
 | Listing “implement X” tasks | Keep to technical design, not execution checklist |
 | Defaulting to new unit tests | Follow spec Verification |
 | Ignoring existing patterns | Inspect and reuse project conventions |
+| Requiring `spec.md` in an entry-bundle | Resolve and read README, shared rules, and relevant entries |
+| Creating one plan per entry mechanically | Organize by code architecture, but label business-entry coverage |
 
 ## Suggested Next Steps
 

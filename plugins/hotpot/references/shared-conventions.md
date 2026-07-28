@@ -1,6 +1,14 @@
 # Shared Conventions
 
-> 原子 skill 共享约定：固定产物目录、需求隔离、模块产物路径、日期和命名。
+> 原子 skill 共享约定：需求隔离、上下文解析、双模式产物、日期和命名。
+
+## 阅读导航
+
+- `Context Resolution`：确定 requirement。
+- `Module Resolution`：确定 module scope。
+- `Artifact Resolution`：确定模块使用单文件还是业务入口文档包。
+- `Business Entry Resolution`：确定当前业务入口及最小读取范围。
+- `产物路径`、`读取原则`、`写入原则`：约束各 skill 的输入输出。
 
 ## 工作目录：`.hotpot/`
 
@@ -25,12 +33,19 @@
     │   └── 2026-06-29-spec.md
     └── modules/
         ├── auth/
-        │   ├── use-cases.md
-        │   ├── spec.md
+        │   ├── README.md
+        │   ├── shared-rules.md
+        │   ├── entries/
+        │   │   ├── 01-login.md
+        │   │   └── 02-logout.md
+        │   ├── .last-entry
+        │   ├── pre-analysis.md
         │   ├── plan.md
         │   ├── plan-review.md
         │   └── check.md
         └── session/
+            ├── use-cases.md
+            ├── spec.md
             └── ...
 ```
 
@@ -305,11 +320,11 @@ Hotpot context
 
 检测到模块：
 
-| # | Module | use-cases | spec | plan | check |
+| # | Module | Artifact mode | 业务产物 | plan | check |
 |---|---|---|---|---|---|
-| 1 | auth | ✅ | ✅ | ⬜ | ⬜ |
-| 2 | session | ✅ | ⬜ | ⬜ | ⬜ |
-| 3 | ui | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | auth | entry-bundle | README + 2 entries | ⬜ | ⬜ |
+| 2 | session | single-file | use-cases | ⬜ | ⬜ |
+| 3 | ui | 未选择 | ⬜ | ⬜ | ⬜ |
 
 上次模块：auth
 
@@ -334,14 +349,91 @@ Hotpot context
 - 更新 `.hotpot/[req]/.last-module`。
 - 更新 `_meta.md` 的 `Current module` 和 `Updated`。
 
+## Artifact Resolution
+
+业务入口只用于 module scope。Requirement scope 始终使用现有单文件产物。
+
+模块业务产物支持两种模式：
+
+| Artifact mode | 判定 | 业务产物 |
+|---|---|---|
+| `single-file` | 不存在业务入口文档包结构 | `use-cases.md`、`spec.md` |
+| `entry-bundle` | 同时存在 `README.md`、`shared-rules.md` 和至少一个 `entries/*.md` | `README.md`、`shared-rules.md`、`entries/*.md` |
+
+所有模块级 skill 在读取业务产物前必须：
+
+1. 先完成 Module Resolution。
+2. 检查模块目录中的两种 artifact mode。
+3. 若 `entry-bundle` 结构完整，读取 `README.md` 的业务入口索引并进入 Business Entry Resolution。
+4. 若不存在 bundle 结构，按 `single-file` 回退到固定文件名。
+5. 若 bundle 结构不完整，停止写入并报告缺少的文件或 entry。
+6. 若 bundle 与 `use-cases.md` 或 `spec.md` 同时存在，停止并要求用户选择 canonical 模式或完成迁移；不得静默任选一套。
+7. 不创建只有链接或导航作用的兼容 `use-cases.md`、`spec.md`。
+
+`README.md` Metadata 中的 `Artifact mode: entry-bundle` 用于一致性校验，但不能代替目录结构判定。
+
+### 模式选择与切换
+
+- 已有模块不自动迁移。
+- 用户明确要求“按业务入口拆分”或“每次只处理一个入口”时，直接采用 `entry-bundle`。
+- 未明确指定时，若出现任一强信号，先建议 `entry-bundle` 并等待确认：
+  - 三个及以上可独立进入的业务入口。
+  - 两个及以上可独立验收的主流程，且角色、页面或提交链路不同。
+  - 多个待确认项、权限、失败方式或接口链路只影响特定入口。
+  - 不同参与者可以分别确认一部分，而不需要理解整个模块。
+- 单一入口的状态分支、纯实现文件差异、不可独立验收的步骤继续使用 `single-file`。
+- `hot-module-split` 只记录模式建议；首个写业务产物的 `hot-use-cases` 或 `hot-spec` 在用户确认后创建 bundle。
+- 从 single-file 切换时移动内容，不复制内容。删除旧文件前先搜索 `.hotpot/` 内引用。
+
+## Business Entry Resolution
+
+业务入口是模块内可独立理解、讨论和验收的业务入口或主流程。它可以是页面入口、操作流程、系统触发流程或数据处理流程，不要求一定对应页面。
+
+进入 `entry-bundle` 后按以下规则解析：
+
+1. 用户显式指定业务入口时，只选择该 entry。
+2. 用户未指定，但请求可由 `README.md` 索引唯一定位时，说明定位结果后继续。
+3. 不能唯一定位时，列出业务入口并等待选择。
+4. 用户要求整个模块时读取全部 entries，但输出仍按业务入口组织，不重新压平成一张总表。
+5. 单入口任务只读取 `README.md`、`shared-rules.md`、目标 entry 和必要的 `pre-analysis.md` / `plan.md` 内容。
+6. 模块目录中的 `.last-entry` 只用于标注上次入口，不得据此静默选择。
+7. 选择业务入口后更新 `.last-entry`；读取整个模块时不更新。
+
+Context banner 示例：
+
+```text
+Hotpot context
+- requirement: user-login-refactor
+- module: auth
+- artifact mode: entry-bundle
+- business entry: 02-admin-login
+- sources: README.md, shared-rules.md, entries/02-admin-login.md
+```
+
+### 信息归属
+
+| 信息类型 | 权威位置 |
+|---|---|
+| 两个及以上入口共用的规则或问题 | `shared-rules.md` |
+| 单一入口的流程、局部规则、接口依赖和验收 | 对应 `entries/*.md` |
+| 入口索引、模块全景、问题摘要、跨 Case 边界 | `README.md` |
+| 当前代码、协议和技术风险事实 | `pre-analysis.md` |
+
+- 共享规则只详细写一次；entry 只引用规则 ID 或简短说明。
+- 接口依赖默认回到受影响 entry，不建立脱离入口的模块级总表。
+- 其他 Case 的内容只能作为边界或参考，不得自动关闭当前 Case 的问题。
+- `hot-use-cases` 维护 entry 的入口目标、主流程、分支、失败竞态、非目标和验收场景。
+- `hot-spec` 维护 entry 的页面/行为、局部规则、问题、接口依赖、验证和业务边界，并维护 `shared-rules.md`。
+- 两个 skill 必须先读完整现有文件，只修改自己负责的章节；发现冲突时报告，不静默覆盖。
+
 ## 日期规则
 
 日期要明确，但不进入默认文件名。
 
 - `_meta.md` 必须记录需求 `Created` / `Updated`。
-- 每个产物的 `Metadata` 节必须记录 `Created` / `Updated` / `Skill` / `Scope`。
+- 每个产物的 `Metadata` 节必须记录 `Created` / `Updated` / `Skill` 或 `Skills` / `Scope`。
 - 日期格式固定为 `YYYY-MM-DD`，使用当前本地日期。
-- canonical 产物文件名保持稳定：`spec.md`、`plan.md`、`check.md`。
+- single-file 的 canonical 文件名保持稳定；entry-bundle 使用 `README.md`、`shared-rules.md` 和 `entries/*.md`。
 - 若需要保留历史版本，复制到 `archive/YYYY-MM-DD-[artifact].md`，不要替代 canonical 文件。
 
 `_meta.md` 推荐格式：
@@ -370,8 +462,9 @@ Hotpot context
 | requirement | `hot-plan-review` | `.hotpot/[req]/plan-review.md` |
 | requirement | `hot-check` | `.hotpot/[req]/check.md` |
 | module | `hot-pre-analysis` | `.hotpot/[req]/modules/[mod]/pre-analysis.md` |
-| module | `hot-use-cases` | `.hotpot/[req]/modules/[mod]/use-cases.md` |
-| module | `hot-spec` | `.hotpot/[req]/modules/[mod]/spec.md` |
+| module, single-file | `hot-use-cases` | `.hotpot/[req]/modules/[mod]/use-cases.md` |
+| module, single-file | `hot-spec` | `.hotpot/[req]/modules/[mod]/spec.md` |
+| module, entry-bundle | `hot-use-cases` / `hot-spec` | `.hotpot/[req]/modules/[mod]/README.md`、`shared-rules.md`、`entries/*.md` |
 | module | `hot-plan` | `.hotpot/[req]/modules/[mod]/plan.md` |
 | module | `hot-plan-review` | `.hotpot/[req]/modules/[mod]/plan-review.md` |
 | module | `hot-check` | `.hotpot/[req]/modules/[mod]/check.md` |
@@ -388,20 +481,21 @@ Hotpot context
 | `hot-requirement-analysis` | 原始需求来源（PRD / ticket / 对话 / bug report）；更新时可读取 `[req]/requirement.md` |
 | `hot-pre-analysis` | `[req]/requirement.md`、需求描述、相关代码、现有 docs |
 | `hot-module-split` | `[req]/requirement.md`、`[req]/pre-analysis.md`、需求描述 |
-| `hot-use-cases` | `[req]/requirement.md`、`[req]/module-split.md`、同 scope 的 `pre-analysis.md`、需求描述 |
-| `hot-spec` | `[req]/requirement.md`、同 scope 的 `use-cases.md`、`module-split.md`、`pre-analysis.md` |
-| `hot-plan` | 同 scope 的 `spec.md`、`pre-analysis.md`、相关代码；可读取 `[req]/requirement.md` 作为范围/约束背景 |
-| `hot-plan-review` | `[req]/requirement.md`、同 scope 的 `spec.md`、`plan.md` |
-| `hot-check` | `[req]/requirement.md`、同 scope 的 `use-cases.md`、`spec.md`、`plan.md`、实际改动 |
+| `hot-use-cases` | `[req]/requirement.md`、`[req]/module-split.md`、同 scope 的 `pre-analysis.md`；模块级先做 Artifact / Business Entry Resolution |
+| `hot-spec` | `[req]/requirement.md`、`module-split.md`、`pre-analysis.md`；single-file 读取 `use-cases.md`，entry-bundle 读取索引、共享规则和相关 entries |
+| `hot-plan` | `pre-analysis.md`、相关代码；single-file 读取 `spec.md`，entry-bundle 读取索引、共享规则和相关 entries |
+| `hot-plan-review` | `[req]/requirement.md`、`plan.md`；按 artifact mode 读取 `spec.md` 或业务入口文档包 |
+| `hot-check` | `[req]/requirement.md`、`plan.md`、实际改动；按 artifact mode 读取单文件或业务入口文档包 |
 
 缺少上游产物时，不要自动补跑其他 skill。说明缺口，能继续就继续；不能继续才 STOP。
-若 `hot-plan` 发现 `requirement.md` 与 `spec.md` 冲突，先修订 spec，不绕过 spec 做技术决策。
+若 `hot-plan` 发现 `requirement.md` 与 canonical 业务产物冲突，先修订业务产物，不绕过已确认规则做技术决策。
 
 ## 写入原则
 
 - 如果用户只是问一个轻量判断，可以只在对话中回答。
 - 如果输出会作为后续依据，必须写入上表路径。
 - 写模块级产物时，先确保 `.hotpot/[req]/modules/[mod]/` 存在。
+- 写 entry-bundle 时维护 `README.md` 索引与 entry 文件的一致性，不生成兼容单文件。
 - 写任意产物后更新 `_meta.md` 的 `Updated`。
 - 写模块级产物后更新 `.last-module`。
 

@@ -1,6 +1,6 @@
 ---
 name: hot-check
-description: Use after implementation to check completed work against hotpot use cases, spec, and plan, focusing on scenario closure, behavior contract, verification evidence, gaps, and change summary.
+description: Use after implementation to check completed work against canonical hotpot business artifacts and plan, including whole-module or single-business-entry closure, shared-rule consistency, verification evidence, gaps, and change summary.
 ---
 
 # Hotpot Check
@@ -11,13 +11,13 @@ This skill is part of the `hotpot` package. Install the whole package so shared 
 
 ## Purpose
 
-Check whether completed work satisfies the use cases, spec, and plan. This is completion checking, not generic code review and not bug debugging.
+Check whether completed work satisfies the canonical business artifacts and plan. This is completion checking, not generic code review and not bug debugging.
 
 ## Boundaries
 
 Do:
 
-- Compare actual changes and verification evidence against `use-cases.md`, `spec.md`, and `plan.md`.
+- Compare actual changes and verification evidence against the resolved canonical business artifacts and `plan.md`.
 - Walk primary, edge, failure, and race scenarios.
 - Record gaps, deviations, and a concise change summary.
 - Save to the fixed `.hotpot` path when useful:
@@ -34,27 +34,29 @@ Do not:
 
 1. Resolve requirement and scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
 2. Identify changed files from the workspace and read relevant diffs.
-3. Read same-scope hotpot artifacts in this order when present:
-   - `requirement.md`
-   - `use-cases.md`
-   - `spec.md`
-   - `plan.md`
-4. Run or inspect verification evidence requested by spec/plan when feasible.
-5. Check:
+3. For module scope, perform Artifact Resolution and Business Entry Resolution.
+4. Read `requirement.md`, `plan.md`, and the canonical business artifacts:
+   - single-file: `use-cases.md` and `spec.md`,
+   - entry-bundle: `README.md`, `shared-rules.md`, and the selected or all relevant entries.
+5. Run or inspect verification evidence requested by the canonical business artifacts and plan when feasible.
+6. Check:
    - scenarios close,
    - behavior contract holds,
    - plan responsibilities landed,
    - verification evidence supports the claim,
-   - deviations are explained.
-6. Produce a verdict:
+   - deviations are explained,
+   - every selected business entry closes independently,
+   - shared rules use one implementation and verification result.
+7. For a whole entry-bundle, report results by entry first and shared-rule conclusions second. For one entry, do not load or report unrelated entry details.
+8. Produce a verdict:
    - ✅ 通过,
    - ⚠️ 有条件通过,
    - ❌ 未通过.
-7. Include `Metadata`; for module scope, update `.last-module`.
+9. Include `Metadata`; for module scope, update `.last-module`.
 
 ## Output Requirements
 
-Use the `Check` template from `../../references/artifact-templates.md`.
+Use the `Check` template from `../../references/artifact-templates.md`, including the business-entry conclusion table for entry-bundle mode.
 
 Lead with verdict and gaps. Put change summary near the end. Do not paste long diffs.
 
