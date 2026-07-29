@@ -12,7 +12,7 @@
       "name": "hotpot",
       "source": "./plugins/hotpot",
       "description": "Atomic requirement-collaboration skills for structured analysis before coding",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "strict": true
     }
   ]

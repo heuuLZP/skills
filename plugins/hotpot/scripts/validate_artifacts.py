@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 
-ENTRY_HEADINGS = (
+REQUIRED_ENTRY_HEADINGS = (
     "## 入口与目标",
     "## 主流程",
     "## 分支场景",
@@ -13,7 +13,6 @@ ENTRY_HEADINGS = (
     "## 验收场景",
     "## 页面 / 行为改动",
     "## 本入口局部规则",
-    "## 本入口相关问题",
     "## 接口依赖",
     "## 验证",
     "## 业务边界",
@@ -65,7 +64,7 @@ def validate_module(module_dir: Path) -> tuple[str, list[str]]:
         entry_text = entry.read_text(encoding="utf-8")
         if entry.name not in readme_text:
             errors.append(f"README.md 业务入口索引未引用 {entry.name}")
-        for heading in ENTRY_HEADINGS:
+        for heading in REQUIRED_ENTRY_HEADINGS:
             if heading not in entry_text:
                 errors.append(f"{entry.name} 缺少章节：{heading}")
         if "- Scope: module" not in entry_text:

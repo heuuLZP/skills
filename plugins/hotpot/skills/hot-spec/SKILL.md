@@ -41,6 +41,7 @@ Do not:
 6. In entry-bundle mode:
    - place rules or questions used by two or more entries in `shared-rules.md`,
    - place entry-local behavior, rules, questions, interface dependencies, verification, and business boundaries in the selected entry,
+   - create `本入口相关问题` only when the entry has a local question; preserve the section and resolved records once created,
    - preserve the entry goal, flows, branches, failures, races, non-goals, and acceptance scenarios owned by `hot-use-cases`,
    - keep cross-Case information in README boundaries and never use it as confirmation evidence for the current Case.
 7. Record each open question's type, source Case, affected entries, current wording, and confirmation status. Do not label an inference as PRD-confirmed.

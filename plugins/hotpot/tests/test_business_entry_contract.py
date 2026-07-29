@@ -12,7 +12,9 @@ assert SPEC.loader is not None
 SPEC.loader.exec_module(validate_artifacts)
 
 
-ENTRY_HEADINGS = "\n".join(validate_artifacts.ENTRY_HEADINGS)
+REQUIRED_ENTRY_HEADINGS = "\n".join(
+    validate_artifacts.REQUIRED_ENTRY_HEADINGS
+)
 
 
 def write(path: Path, content: str) -> None:
@@ -35,7 +37,7 @@ def create_bundle(module_dir: Path, include_index: bool = True) -> None:
     )
     write(
         module_dir / "entries" / entry_name,
-        f"# Entry\n\n{ENTRY_HEADINGS}\n\n"
+        f"# Entry\n\n{REQUIRED_ENTRY_HEADINGS}\n\n"
         "- Scope: module\n"
         "- Business entry: 01-admin-login\n"
         "- Artifact mode: entry-bundle\n",
@@ -63,6 +65,27 @@ class ArtifactValidatorTests(unittest.TestCase):
 
             self.assertEqual("entry-bundle", mode)
             self.assertEqual([], errors)
+
+    def test_entry_local_questions_heading_is_optional(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            module_dir = Path(temp_dir)
+            create_bundle(module_dir)
+
+            _, errors = validate_artifacts.validate_module(module_dir)
+
+            self.assertFalse(any("本入口相关问题" in error for error in errors))
+
+    def test_missing_required_entry_heading_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            module_dir = Path(temp_dir)
+            create_bundle(module_dir)
+            entry = module_dir / "entries" / "01-admin-login.md"
+            entry_text = entry.read_text(encoding="utf-8")
+            write(entry, entry_text.replace("## 接口依赖", "## 非必需标题"))
+
+            _, errors = validate_artifacts.validate_module(module_dir)
+
+            self.assertTrue(any("缺少章节：## 接口依赖" in error for error in errors))
 
     def test_partial_bundle_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp_dir:
