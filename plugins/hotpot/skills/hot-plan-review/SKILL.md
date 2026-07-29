@@ -36,6 +36,9 @@ Do not:
 3. Read `.hotpot/[req]/requirement.md`, `plan.md`, and `pre-analysis.md` when present. Read `spec.md` / `use-cases.md` in single-file mode or README, shared rules, and relevant entries in entry-bundle mode.
 4. Use `../../references/review-checklist.md`. For an entire entry-bundle, verify every entry has a plan landing point and every shared rule has one consistent implementation approach.
 5. Check that entry-local questions were not promoted to module-wide behavior, cross-entry contracts were not omitted, and unresolved questions were not silently decided.
+   - Treat any plan produced while a blocking question is unconfirmed as a blocking review finding.
+   - Verify that deleted single-file or entry-local question sections have source-Case-backed conclusions in canonical rules, interface dependencies, extra code-external work, or another formal contract section.
+   - Allow confirmed shared-question records to remain in `共享待确认项`.
 6. Lead with findings ordered by severity.
 7. For each finding, include:
    - severity,

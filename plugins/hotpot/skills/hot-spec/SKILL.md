@@ -37,14 +37,21 @@ Do not:
 2. For module scope, perform Artifact Resolution and Business Entry Resolution before reading or writing business artifacts.
 3. If no module business artifacts exist, follow the same mode-selection rules as `hot-use-cases`; do not create an entry-bundle without explicit user direction or confirmation.
 4. Read `.hotpot/[req]/requirement.md` and canonical scenario inputs when present. If no use cases exist, enumerate only the minimum scenarios needed; do not pretend a full `hot-use-cases` pass was done.
-5. In single-file mode, keep the existing `Spec` workflow and template.
+5. In single-file mode:
+   - create `待澄清问题` only when the spec has an open question,
+   - keep the complete question section while any question remains unconfirmed,
+   - after every question is confirmed, first move every conclusion into `业务规则`, `接口依赖`, `额外工作项（代码外）`, or another canonical contract section with its source Case, then delete the complete question section,
+   - never delete a question section while a conclusion still lacks a canonical landing point.
 6. In entry-bundle mode:
    - place rules or questions used by two or more entries in `shared-rules.md`,
    - place entry-local behavior, rules, questions, interface dependencies, verification, and business boundaries in the selected entry,
-   - create `本入口相关问题` only when the entry has a local question; preserve the section and resolved records once created,
+   - create `本入口相关问题` only when the entry has a local question,
+   - keep the complete entry question section while any local question remains unconfirmed; after all local questions are confirmed, first move every conclusion into `本入口局部规则`, `接口依赖`, `额外工作项（代码外）`, or another canonical entry contract section with its source Case, then delete the complete question section,
+   - when deleting an entry question section, remove its rows from the module README question summary and refresh the blocking count,
+   - preserve confirmed rows in `共享待确认项` after their conclusions are written to the canonical shared sections,
    - preserve the entry goal, flows, branches, failures, races, non-goals, and acceptance scenarios owned by `hot-use-cases`,
    - keep cross-Case information in README boundaries and never use it as confirmation evidence for the current Case.
-7. Record each open question's type, source Case, affected entries, current wording, and confirmation status. Do not label an inference as PRD-confirmed.
+7. Record each open question's type, source Case, affected entries when applicable, current wording, blocking status, and confirmation status. Do not label an inference as PRD-confirmed.
 8. Check for duplicated shared rules, entry-local interface questions detached from their entry, and a rules-by-type layout that hides entry context.
 9. Fill `Verification`:
    - Default: run app, walk scenarios, run existing tests.

@@ -40,15 +40,19 @@ Do not:
    - single-file: `spec.md` and relevant `use-cases.md`,
    - entry-bundle: `README.md`, `shared-rules.md`, and the selected or all relevant entries.
    Read `.hotpot/[req]/requirement.md` only as scope/constraint background.
-4. Inspect code paths needed to avoid inventing architecture.
-5. Design files and responsibilities. Prefer existing project patterns and mark every responsibility and verification point with the business entries it covers.
-6. Design state and data flow, including request/cache/race handling and contracts shared across entries.
-7. Decide interaction infrastructure:
+4. Inspect every canonical question section before planning:
+   - if any question has `是否阻断：是` and is not `已确认`, STOP and direct the user back to `hot-spec`,
+   - non-blocking unconfirmed questions may remain, but list them as unresolved dependencies or risks and never choose a wording on the user's behalf,
+   - the absence of a temporary single-file or entry-local question section means those questions have completed the `hot-spec` settlement workflow; confirmed shared-question records may remain in `共享待确认项`.
+5. Inspect code paths needed to avoid inventing architecture.
+6. Design files and responsibilities. Prefer existing project patterns and mark every responsibility and verification point with the business entries it covers.
+7. Design state and data flow, including request/cache/race handling and contracts shared across entries.
+8. Decide interaction infrastructure:
    - Use mature libraries or existing wrappers for drag/drop, virtual scroll, forms, data fetching, caching, and concurrency.
    - Do not hand-roll well-established infrastructure unless the spec requires it.
-8. Add comment/JSDoc requirements only where logic is non-obvious.
-9. Define verification points from canonical scenarios and shared rules.
-10. Include `Metadata`; for module scope, update `.last-module`.
+9. Add comment/JSDoc requirements only where logic is non-obvious.
+10. Define verification points from canonical scenarios and shared rules.
+11. Include `Metadata`; for module scope, update `.last-module`.
 
 ## P19 Verification Rule
 
@@ -76,6 +80,8 @@ The plan must be enough for `/goal` to implement without re-deciding architectur
 | Listing “implement X” tasks | Keep to technical design, not execution checklist |
 | Defaulting to new unit tests | Follow spec Verification |
 | Ignoring existing patterns | Inspect and reuse project conventions |
+| Planning through an unresolved blocker | Stop and return to `hot-spec` |
+| Silently deciding a non-blocking question | Keep it as an explicit dependency or risk |
 | Requiring `spec.md` in an entry-bundle | Resolve and read README, shared rules, and relevant entries |
 | Creating one plan per entry mechanically | Organize by code architecture, but label business-entry coverage |
 

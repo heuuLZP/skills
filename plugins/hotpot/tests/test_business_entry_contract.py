@@ -32,7 +32,8 @@ def create_bundle(module_dir: Path, include_index: bool = True) -> None:
     )
     write(
         module_dir / "shared-rules.md",
-        "# Shared\n\n## 共享行为规则\n\n## 共享待确认项\n\n## Metadata\n\n"
+        "# Shared\n\n## 共享行为规则\n\n## 共享待确认项\n\n"
+        "## 额外工作项（代码外）\n\n## Metadata\n\n"
         "- Artifact mode: entry-bundle\n",
     )
     write(
@@ -86,6 +87,50 @@ class ArtifactValidatorTests(unittest.TestCase):
             _, errors = validate_artifacts.validate_module(module_dir)
 
             self.assertTrue(any("缺少章节：## 接口依赖" in error for error in errors))
+
+    def test_missing_entry_external_work_heading_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            module_dir = Path(temp_dir)
+            create_bundle(module_dir)
+            entry = module_dir / "entries" / "01-admin-login.md"
+            entry_text = entry.read_text(encoding="utf-8")
+            write(
+                entry,
+                entry_text.replace(
+                    "## 额外工作项（代码外）",
+                    "## 非必需标题",
+                ),
+            )
+
+            _, errors = validate_artifacts.validate_module(module_dir)
+
+            self.assertTrue(
+                any("缺少章节：## 额外工作项（代码外）" in error for error in errors)
+            )
+
+    def test_missing_shared_external_work_heading_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            module_dir = Path(temp_dir)
+            create_bundle(module_dir)
+            shared = module_dir / "shared-rules.md"
+            shared_text = shared.read_text(encoding="utf-8")
+            write(
+                shared,
+                shared_text.replace(
+                    "## 额外工作项（代码外）",
+                    "## 非必需标题",
+                ),
+            )
+
+            _, errors = validate_artifacts.validate_module(module_dir)
+
+            self.assertTrue(
+                any(
+                    "shared-rules.md 缺少章节：## 额外工作项（代码外）"
+                    in error
+                    for error in errors
+                )
+            )
 
     def test_partial_bundle_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -151,6 +196,35 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("## 业务入口文档包：共享规则", text)
         self.assertIn("## 业务入口文档包：Entry", text)
         self.assertIn("章节所有权", text)
+
+    def test_spec_question_lifecycle_is_consistent(self):
+        skill_text = (
+            PLUGIN_ROOT / "skills" / "hot-spec" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        convention_text = (
+            PLUGIN_ROOT / "references" / "shared-conventions.md"
+        ).read_text(encoding="utf-8")
+        template_text = (
+            PLUGIN_ROOT / "references" / "artifact-templates.md"
+        ).read_text(encoding="utf-8")
+        combined = "\n".join((skill_text, convention_text, template_text))
+
+        self.assertNotIn("preserve the section and resolved records", combined)
+        self.assertNotIn("已有章节和已解决记录不得自动删除", combined)
+        self.assertNotIn("问题解决后保留记录", combined)
+        self.assertIn("统一删除整个问题区", combined)
+        self.assertIn("`共享待确认项` 不采用删除式生命周期", combined)
+
+    def test_plan_blocks_unconfirmed_blocking_questions(self):
+        plan_text = (
+            PLUGIN_ROOT / "skills" / "hot-plan" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        review_text = (
+            PLUGIN_ROOT / "skills" / "hot-plan-review" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("`是否阻断：是` and is not `已确认`", plan_text)
+        self.assertIn("blocking question is unconfirmed", review_text)
 
 
 if __name__ == "__main__":

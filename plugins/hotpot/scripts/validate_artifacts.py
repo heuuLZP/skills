@@ -14,6 +14,7 @@ REQUIRED_ENTRY_HEADINGS = (
     "## 页面 / 行为改动",
     "## 本入口局部规则",
     "## 接口依赖",
+    "## 额外工作项（代码外）",
     "## 验证",
     "## 业务边界",
     "## Metadata",
@@ -54,7 +55,12 @@ def validate_module(module_dir: Path) -> tuple[str, list[str]]:
         errors.append("README.md Metadata 缺少 Artifact mode: entry-bundle")
 
     shared_text = shared_rules.read_text(encoding="utf-8")
-    for heading in ("## 共享行为规则", "## 共享待确认项", "## Metadata"):
+    for heading in (
+        "## 共享行为规则",
+        "## 共享待确认项",
+        "## 额外工作项（代码外）",
+        "## Metadata",
+    ):
         if heading not in shared_text:
             errors.append(f"shared-rules.md 缺少章节：{heading}")
     if "- Artifact mode: entry-bundle" not in shared_text:
