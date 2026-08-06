@@ -42,7 +42,7 @@ for skill in "${SKILLS[@]}"; do
   ensure_link "$SHARED_ROOT/$skill" "$HOME/.claude/skills/$skill" "claude/$skill"
 done
 
-echo "Installed ${#SKILLS[@]} skills for Codex and Claude Code."
+echo "Installed ${#SKILLS[@]} shared skills for Codex, Claude Code, and ZCode."
 if [[ "$BACKUP_CREATED" -eq 1 ]]; then
   echo "Backups: $BACKUP_ROOT"
 fi

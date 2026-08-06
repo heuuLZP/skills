@@ -1,144 +1,187 @@
 ---
 name: human-review
-description: AI-assisted human review of many pending Git changes before commit. Use when the user asks to review, inspect, stage, or commit changes interactively in small batches, especially when they want at most three files per batch, an explanation of what and why, and explicit human approval before every commit. Supports Codex and Claude Code.
+description: 以人工批准为核心，结构化审阅并按职责分批处理大量待提交 Git 改动；解释每个文件改了什么、为什么改，评估工程质量，在用户明确授权后修复问题并复审，再逐批提交。适用于用户要求 review、检查、暂存、修复或提交多文件改动，支持 Codex、Claude Code 和 ZCode。
 ---
 
-# Human Review
+# 人工审阅
 
-Help the human understand and approve pending changes. Analyze and organize the work, but leave every commit decision to the human.
+帮助用户快速理解、修复并批准待提交改动。默认使用用户的语言；中文场景统一使用中文标题和交互文案，仅保留代码标识、路径、命令和仓库约定的提交格式。
 
-## Safety Contract
+## 安全约束
 
-- Never commit without explicit approval for the currently displayed batch.
-- Never use `git add .`, `git add -A`, `git commit -a`, or another broad staging command.
-- Never discard file contents. Do not use `git reset --hard`, `git checkout --`, `git restore <path>`, or destructive equivalents.
-- Keep each batch to at most three files. Prefer a smaller coherent batch over filling all three slots.
-- Treat approval as single-use. Approval for one batch does not authorize later batches.
-- Do not edit code as part of this workflow. If review finds a problem, report it and let the human decide what happens next.
-- Do not start subagents for this review unless the human explicitly requests them.
+- 未获得当前批次的明确批准，不得提交。
+- 未获得当前批次的明确修改授权，不得编辑代码。用户选择“修改本批”或“修复本批”，只授权正文已展示或用户反馈明确要求的当前批次改动和文件范围。
+- 不得使用 `git add .`、`git add -A`、`git commit -a` 或其他宽泛暂存命令。
+- 不得丢弃文件内容。禁止使用 `git reset --hard`、`git checkout --`、`git restore <path>` 或破坏性等价命令。
+- 默认每批 1–2 个文件；仅当实现、类型或测试强耦合且必须共同理解时允许 3 个文件。
+- 每次批准只对当前展示的已暂存差异生效。修复、外部编辑或 Git 钩子改变差异后，必须重新审阅和批准。
+- 不得静默扩大修改范围。需要修改批次外文件时，必须先获得单独授权。
+- 不得启动子代理，除非用户明确要求。
 
-## Workflow
+## 1. 建立仓库基线
 
-### 1. Establish repository state
+1. 确认当前目录位于 Git 仓库内。
+2. 读取 `git status --short`、已暂存 diff、未暂存 diff、未跟踪文件、重命名、删除和冲突。
+3. 没有待处理改动时，说明状态并停止。
+4. 记录技能启动前已经暂存的路径和内容，后续始终保护这条边界。
 
-1. Confirm the working directory is inside a Git repository.
-2. Read `git status --short`, unstaged changes, staged changes, untracked files, renames, and deletions.
-3. If nothing is pending, say so and stop.
-4. Record which paths or hunks were already staged before this skill started.
+如果已有暂存内容：
 
-If the index already contains changes, preserve that boundary:
+- 优先审阅原有暂存集合，不得擅自混入新内容。
+- 原有暂存集合不超过 3 个文件且职责一致时，将其作为首批。
+- 原有暂存集合超过 3 个文件或混合多个职责时，不得静默取消暂存或重组；说明冲突并询问如何拆分。
+- 后续暂停、跳过或修复时，不得取消技能启动前已有的暂存内容。
 
-- Review the pre-existing staged set before staging anything new.
-- If it contains at most three files and forms a coherent change, use it as the first batch.
-- If it contains more than three files or mixes unrelated work, do not silently unstage or regroup it. Explain the conflict and ask the human how to split it.
-- Never mix newly staged changes into a pre-existing staged batch without explicit approval.
+## 2. 生成改动地图与批次
 
-### 2. Plan batches
+检查实际 diff，先按业务目的、依赖关系或行为职责分组，再规划批次。不要按文件名机械分组，也不要为了凑满数量而合并。
 
-Inspect the actual diffs and group the remaining paths by one coherent purpose, dependency, or behavior. Do not group mechanically by filename or merely to reach three files.
+遵守以下规则：
 
-Apply these rules:
+- 默认每批 1–2 个文件，强耦合时最多 3 个文件。
+- 尽量将实现与直接关联的类型或测试放在同一批。
+- 分开处理无关功能、修复、文档、生成文件和配置改动。
+- 明确标出删除、重命名、依赖、锁文件、CI、环境配置、迁移和生成产物。
+- 一个文件默认只属于一个批次；需要拆分变更片段时，先取得按片段暂存的授权。
+- 每次提交后重新读取仓库状态，因为 Git 钩子或外部编辑可能改变后续计划。
 
-- Maximum three files per batch.
-- Keep implementation and its directly coupled types or tests together when possible.
-- Separate unrelated features, fixes, documentation, generated files, and configuration changes.
-- Call out deletions, renames, dependency files, lockfiles, CI files, environment files, and generated artifacts.
-- Keep one file in one batch by default. If a file contains unrelated changes that require hunk-level splitting, ask for permission before using patch staging.
-- The batch plan is provisional. Re-read repository state after every commit because hooks or human edits may change it.
-
-Briefly tell the human how many batches are currently expected and which files are in the first batch. Do not dump the entire diff.
-
-### 3. Stage only the current batch
-
-Stage only the exact paths in the current batch using path-scoped commands such as `git add -- <path>...`. Handle deletions with an exact path-scoped command. Quote unusual paths safely.
-
-For tracked files that contain both intended and unrelated hunks, do not stage the whole path. Ask the human before using interactive or patch staging.
-
-After staging:
-
-1. Verify the index with `git diff --cached --name-status`.
-2. Verify the staged diff with `git diff --cached`.
-3. Confirm no path outside the approved current batch entered the index.
-4. If the staged result is wrong, repair only staging state and explain what happened. Never discard working-tree content.
-
-### 4. Present the batch
-
-Summarize from the staged diff, not from filenames or assumptions. Use this compact structure:
+首次只展示简短改动地图，不倾倒完整 diff 或全部文件明细：
 
 ```text
-Batch 1 / about 4
-
-Files
-- path/to/file-a
-  - Main change: ...
-  - Why: ...
-  - Review focus: ...
-- path/to/file-b
-  - Main change: ...
-  - Why: ...
-  - Review focus: ...
-
-Cross-file behavior: ...
-Suggested commit: fix: ...
-Verification: ...
+## 改动地图
+- 整体目标：...
+- 规模：N 个文件，预计 M 批
+- 职责分组：...
+- 风险分布：高 ... / 中 ... / 低 ...
+- 当前批次：第 1 批，负责 ...
 ```
 
-For each file, explain:
+后续批次只更新进度、剩余风险和当前批次，不重复完整地图。
 
-- the main behavioral or structural change,
-- why the change appears necessary, grounded in code, nearby context, specs, plans, or tests,
-- risks, uncertainty, or the exact area worth human attention.
+## 3. 暂存当前批次
 
-Say when the reason is inferred rather than documented. Report review findings before the summary, ordered by severity and linked to exact files and lines when possible. Do not claim tests passed unless evidence exists.
+仅使用 `git add -- <path>...` 等精确路径命令暂存当前批次；删除文件也必须使用精确路径命令。
 
-### 5. Ask for the human decision
+如果文件同时包含目标变更片段和无关变更片段，不得暂存整个路径。先询问是否允许按片段暂存。
 
-Use the host's structured question tool when available. In Claude Code, use its interactive question mechanism; in Codex, use the available user-input or structured-choice mechanism. Present exactly these three decisions, with wording adjusted naturally to the host:
+暂存后：
 
-1. `Approve and commit` - Commit only the currently staged batch with the suggested message, then continue to the next batch.
-2. `Reject and stop` - Do not commit. Unstage only changes added to the index by this skill for the current batch, preserve all working-tree content, and end the workflow.
-3. `Request changes` - Collect the human's free-form feedback about grouping, analysis, exclusions, review concerns, or commit message; apply it and present the batch again without committing.
+1. 用 `git diff --cached --name-status` 验证路径。
+2. 用 `git diff --cached` 验证实际内容。
+3. 确认索引中没有当前批次以外的新路径。
+4. 暂存结果错误时，只修复索引状态，不得丢弃工作区内容。
 
-The prompt must include the suggested commit message and make clear that the decision applies only to the current batch.
+## 4. 展示当前批次
 
-If the host cannot show structured choices, use the same three numbered choices in plain text and wait. Do not interpret vague replies such as `looks okay`, silence, or approval from an earlier batch as authorization to commit.
+始终从已暂存差异总结，不根据文件名猜测。先用一句话说明本批职责，再按以下结构展示：
 
-### 6. Apply the decision
+```text
+## 第 1 / 6 批｜批次职责
+本批目标：...
 
-For `Approve and commit`:
+### 问题发现
+- 阻断｜path:line：...
+- 关注｜path:line：...
+- 建议｜path:line：...
 
-1. Recheck that the staged path list still matches the displayed batch.
-2. Commit with the approved message.
-3. Report the commit hash and subject.
-4. Re-read Git status and diffs.
-5. Continue with the next coherent batch, returning to staging and explanation.
+### 文件改动
+- `path/to/file-a`
+  - 改了什么：...
+  - 为什么改：...
+- `path/to/file-b`
+  - 改了什么：...
+  - 为什么改：...
 
-For `Reject and stop`:
+跨文件关系：仅在有助于理解时说明调用链、数据流或依赖关系。
 
-1. Unstage only paths or hunks newly staged by this skill for the current batch.
-2. Preserve anything that was staged before the skill started.
-3. Verify and report the resulting Git state, then stop.
+### 工程质量
+| 维度 | 结论 |
+|---|---|
+| 正确性 | 🟢 通过 |
+| 职责边界 | 🟡 关注 |
+| 可读性 | 🟢 通过 |
+| 可维护性 | 🟢 通过 |
+| 测试保障 | ⚪ 未验证 |
+| 实现简洁性 | 🟢 通过 |
 
-For `Request changes`:
+需关注：只解释关注、问题和未验证项。
+验证：...
+建议提交：...
+```
 
-1. Collect the free-form opinion if it was not included with the choice.
-2. Restate the requested adjustment briefly.
-3. Change only staging state, grouping, explanation, or proposed commit message as requested.
-4. Re-verify and re-present the batch.
-5. Ask the same three-way question again.
+使用 `🟢 通过`、`🟡 关注`、`🔴 问题`、`⚪ 未验证`。不要为通过项补充套话。
 
-### 7. Finish
+问题按以下标准分类：
 
-After the last approved commit, verify the repository status and summarize the commits created. Clearly identify any remaining unstaged, staged, untracked, skipped, or conflicted changes.
+- **阻断**：已确认的正确性缺陷、安全或数据损坏风险、由本次改动导致的构建或测试失败、冲突、已暂存差异与展示内容不一致。
+- **关注**：存在明确风险或不确定性，但没有证据表明当前实现必然错误。
+- **建议**：不影响本批提交的工程质量优化。
 
-## Stop Conditions
+低风险批次保持精简。涉及核心逻辑、配置、依赖、安全、数据、迁移或公共接口时，再展开关键流程、失败模式和兼容性影响。原因没有文档依据时，明确标注为推断。没有证据时，不得声称测试通过。
 
-Stop without committing when:
+如果问题可安全修复，在问题后补充紧凑的修复方案，列出拟修改路径、预期行为和验证方式；不要在选择弹窗里重复这些内容。
 
-- the repository has unresolved conflicts,
-- safe batch boundaries cannot be determined without splitting a file and permission is absent,
-- hooks or external edits change the staged content after it was presented,
-- a commit fails,
-- the human rejects the batch or asks to pause.
+## 5. 获取当前批次决定
 
-Explain the exact state and retain all work so the workflow can resume safely.
+优先使用宿主提供的结构化选择工具。弹窗只保留短问题和短选项，详细分析、文件列表和提交信息留在正文中。
+
+没有阻断问题时，展示：
+
+1. `提交本批`：仅提交当前已暂存差异，然后继续下一批。
+2. `修改本批`：授权执行正文中已展示的当前批次修改方案；需要不同调整时收集简短反馈。
+3. `暂停审阅`：不提交，撤销仅由本技能为当前批次新增的暂存，然后停止。
+
+存在阻断问题时，禁止提供提交入口，展示：
+
+1. `修复本批`：授权执行正文中已展示的修复方案。
+2. `跳过本批`：撤销仅由本技能为当前批次新增的暂存，保留工作区内容，继续下一批。
+3. `暂停审阅`：安全恢复暂存边界并停止。
+
+宿主不支持结构化选择时，使用同样的三个简短编号选项。不得把模糊回复、沉默或前一批批准解释为当前授权。
+
+## 6. 执行授权修复
+
+用户选择“修改本批”或“修复本批”后：
+
+1. 再次记录 `git status`、当前已暂存差异、工作区差异和原有暂存边界。
+2. 对本技能新暂存的当前批次，优先使用 `git restore --staged -- <path>...` 等精确路径的仅索引操作取消暂存；不得取消技能启动前已有的暂存。
+3. 只编辑已展示且获授权的当前批次路径，不顺手处理其他问题。
+4. 运行与修改直接相关且不会重写无关文件的测试、构建或静态检查。
+5. 重新读取完整差异，确认没有意外路径或变更片段。
+6. 使用精确路径重新暂存，重新执行工程质量评估并完整展示当前批次。
+7. 要求新的提交批准；修复前的批准或修改授权不得复用。
+
+如果修复需要批次外文件，修改前先在正文说明新增路径、必要性、职责关系和扩展后的文件数量，再使用紧凑选择：
+
+1. `允许扩展`：仅授权刚展示的新增路径。
+2. `调整方案`：收集用户对范围或实现方式的反馈，重新展示方案。
+3. `暂停审阅`：不扩大修改范围并停止。
+
+未获允许不得编辑批次外文件。扩展后超过 3 个文件或混入独立职责时，重新拆分批次并再次确认边界。
+
+修复失败、验证失败、出现新阻断问题、无法安全隔离变更片段或差异被外部改变时，停止提交，展示真实状态并等待用户决定。保留全部工作区内容。
+
+## 7. 提交与继续
+
+用户选择“提交本批”后：
+
+1. 确认已暂存路径和内容仍与刚展示的批次完全一致。
+2. 使用已批准的提交信息提交当前批次。
+3. 报告提交哈希和标题。
+4. 重新读取 Git 状态和剩余差异。
+5. 更新进度并进入下一批，不重复完整改动地图。
+
+全部完成后，汇总本次创建的提交，并明确列出剩余的未暂存、已暂存、未跟踪、跳过或冲突内容。
+
+## 停止条件
+
+出现以下情况时停止提交并保留全部工作：
+
+- 仓库存在未解决冲突。
+- 无法在未获授权的情况下确定安全批次或隔离变更片段。
+- Git 钩子或外部编辑改变了已展示的已暂存差异。
+- 修复或验证失败且仍存在阻断问题。
+- 提交失败。
+- 用户选择暂停。
+
+说明停止原因、当前索引和工作区状态，以及安全恢复审阅所需的下一步。

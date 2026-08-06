@@ -1,6 +1,6 @@
 # heuuLZP Skills
 
-个人维护的 Claude Code 与 Codex skills/plugin 集合。独立能力以 skill 提供，需要共享上下文的完整工作流以 plugin 提供。
+个人维护的 Claude Code、Codex 与 ZCode skills/plugin 集合。独立能力以 skill 提供，需要共享上下文的完整工作流以 plugin 提供。
 
 ## 独立 Skills
 
@@ -9,7 +9,7 @@
 | `ai-reflect` | 回顾近期 AI 使用习惯、协作质量或依赖程度 | 基于 Claude Code 与 Codex 会话生成四维协作复盘报告 | “分析我最近一周使用 AI 的情况” |
 | `arch-review` | 完成功能后复盘业务、应用和技术架构思考 | 找出一个最值得深入的架构盲点，给出对比与思考题 | “用 arch-review 复盘这次改动” |
 | `commit` | 需要分析 Git 改动、生成提交信息或拆分提交 | 合理暂存并创建一个或多个 Git commit | “提交当前改动” |
-| `human-review` | 待提交文件较多，需要人逐批理解和批准 | 每批最多三个文件，由 AI 暂存和解释，人确认后提交 | “带我分批 review 当前改动” |
+| `human-review` | 待提交文件较多，需要人逐批理解、修复和批准 | AI 先建立改动地图并评估工程质量，获授权后修复问题并逐批提交 | “带我分批审阅和修复当前改动” |
 
 可以直接描述任务，也可以在提示词中明确指定 skill 名称。客户端会根据 skill 的 description 判断是否加载完整工作流。
 
@@ -101,7 +101,7 @@ cd skills
 ./scripts/install.sh
 ```
 
-脚本只连接 Claude Code 与 Codex。仓库是唯一源码，`~/.agents/skills` 作为共享入口。遇到已有真实目录时，脚本会先备份再建立软链接。
+脚本连接 Claude Code、Codex 与 ZCode。仓库是唯一源码，`~/.agents/skills` 作为三端共享入口；Codex 与 Claude Code 额外建立兼容软链接，ZCode 直接发现共享入口。遇到已有真实目录时，脚本会先备份再建立软链接。
 
 本地安装 Hotpot plugin：
 

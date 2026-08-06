@@ -1,4 +1,4 @@
 interface:
-  display_name: "AI 辅助人工 Review"
-  short_description: "AI 分批暂存并说明改动，由人逐批审阅和决定是否提交"
-  default_prompt: "Use $human-review to help me review and commit the current changes in batches."
+  display_name: "AI 辅助人工审阅"
+  short_description: "结构化理解每个文件改动，授权修复问题并逐批确认提交"
+  default_prompt: "使用 $human-review 结构化审阅当前改动，发现问题时先征得我的授权再修复和复审。"
