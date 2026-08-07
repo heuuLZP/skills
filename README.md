@@ -101,7 +101,7 @@ cd skills
 ./scripts/install.sh
 ```
 
-脚本连接 Claude Code、Codex 与 ZCode。仓库是唯一源码，`~/.agents/skills` 作为三端共享入口；Codex 与 Claude Code 额外建立兼容软链接，ZCode 直接发现共享入口。遇到已有真实目录时，脚本会先备份再建立软链接。
+本地安装脚本为 Claude Code、Codex 与 ZCode 桌面客户端准备共享技能目录。仓库是唯一源码，`~/.agents/skills` 作为三端共享入口；Codex 与 Claude Code 桌面客户端额外使用兼容软链接，ZCode 桌面客户端直接发现共享入口。脚本不升级或配置 CLI；遇到已有真实目录时，会先备份再建立软链接。
 
 本地安装 Hotpot plugin：
 

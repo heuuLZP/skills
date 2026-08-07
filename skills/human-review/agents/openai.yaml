@@ -1,4 +1,4 @@
 interface:
   display_name: "AI 辅助人工审阅"
   short_description: "结构化理解每个文件改动，授权修复问题并逐批确认提交"
-  default_prompt: "使用 $human-review 结构化审阅当前改动，发现问题时先征得我的授权再修复和复审。"
+  default_prompt: "使用 $human-review 逐批审阅当前改动，说明每个文件的职责、改动、原因和影响，发现问题时先征得我的授权再修复和复审。"

@@ -42,7 +42,7 @@ for skill in "${SKILLS[@]}"; do
   ensure_link "$SHARED_ROOT/$skill" "$HOME/.claude/skills/$skill" "claude/$skill"
 done
 
-echo "Installed ${#SKILLS[@]} shared skills for Codex, Claude Code, and ZCode."
+echo "已为 Codex、Claude Code 和 ZCode 桌面客户端安装 ${#SKILLS[@]} 个共享技能。"
 if [[ "$BACKUP_CREATED" -eq 1 ]]; then
-  echo "Backups: $BACKUP_ROOT"
+  echo "备份目录：$BACKUP_ROOT"
 fi
