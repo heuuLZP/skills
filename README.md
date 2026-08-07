@@ -11,7 +11,7 @@
 | `commit` | 需要分析 Git 改动、生成提交信息或拆分提交 | 合理暂存并创建一个或多个 Git commit | “提交当前改动” |
 | `human-review` | 待提交文件较多，需要人逐批理解、修复和批准 | AI 先建立改动地图并评估工程质量，获授权后修复问题并逐批提交 | “带我分批审阅和修复当前改动” |
 
-可以直接描述任务，也可以在提示词中明确指定 skill 名称。客户端会根据 skill 的 description 判断是否加载完整工作流。
+可以直接描述任务，也可以在提示词中明确指定 skill 名称。Codex、Claude Code 与 ZCode 桌面客户端会根据 skill 的 description 判断是否加载完整工作流。
 
 ## Hotpot Plugin
 
@@ -101,7 +101,7 @@ cd skills
 ./scripts/install.sh
 ```
 
-本地安装脚本为 Claude Code、Codex 与 ZCode 桌面客户端准备共享技能目录。仓库是唯一源码，`~/.agents/skills` 作为三端共享入口；Codex 与 Claude Code 桌面客户端额外使用兼容软链接，ZCode 桌面客户端直接发现共享入口。脚本不升级或配置 CLI；遇到已有真实目录时，会先备份再建立软链接。
+本地安装脚本为 Claude Code、Codex 与 ZCode 桌面客户端准备共享技能目录。仓库是唯一源码，`~/.agents/skills` 作为三端共享入口；Codex 与 Claude Code 桌面客户端额外使用兼容软链接，ZCode 桌面客户端直接发现共享入口。脚本不升级或配置 CLI，技能加载和 smoke check 仅以三款桌面客户端的新会话为验收对象；遇到已有真实目录时，会先备份再建立软链接。
 
 本地安装 Hotpot plugin：
 
