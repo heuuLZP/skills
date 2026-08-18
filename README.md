@@ -9,9 +9,9 @@
 | `ai-reflect` | 回顾近期 AI 使用习惯、协作质量或依赖程度 | 基于 Claude Code 与 Codex 会话生成四维协作复盘报告 | “分析我最近一周使用 AI 的情况” |
 | `arch-review` | 完成功能后复盘业务、应用和技术架构思考 | 找出一个最值得深入的架构盲点，给出对比与思考题 | “用 arch-review 复盘这次改动” |
 | `commit` | 需要分析 Git 改动、生成提交信息或拆分提交 | 合理暂存并创建一个或多个 Git commit | “提交当前改动” |
-| `human-review` | 待提交文件较多，需要人逐批理解、修复和批准 | AI 先建立改动地图并评估工程质量，获授权后修复问题并逐批提交 | “带我分批审阅和修复当前改动” |
+| `human-review` | 显式选择该 skill，逐批理解、修复和批准待提交改动 | AI 先建立改动地图并评估工程质量，获授权后修复问题并逐批提交 | `/human-review` |
 
-可以直接描述任务，也可以在提示词中明确指定 skill 名称。Codex、Claude Code 与 ZCode 桌面客户端会根据 skill 的 description 判断是否加载完整工作流。
+除 `human-review` 外，可以直接描述任务，也可以在提示词中明确指定 skill 名称，客户端会根据 skill 的 description 判断是否加载完整工作流。`human-review` 仅在用户通过技能选择器或使用 `/human-review`、`$human-review`、“使用 human-review”等方式显式调用时启用；普通的“代码审查”或 “code review” 请求使用模型默认的代码审核方式，不加载人工分批审批流程。
 
 ## Hotpot Plugin
 
