@@ -5,61 +5,21 @@ description: Use when a requirement or module needs codebase reconnaissance befo
 
 # Hotpot Pre Analysis
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`.
+回答“现状是什么、在哪里、如何运作、可复用什么、有哪些风险”。只记录代码与协议事实，不定义产品规则或技术方案，不开始实现。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Produce a factual snapshot of the current system around a requirement. This skill answers “what already exists, where is it, how does it work, what can be reused, and what risks are visible?”
-
-## Boundaries
-
-Do:
-
-- Inspect relevant files, docs, routes, APIs, data models, tests, and config.
-- Separate verified facts from assumptions.
-- Map code structure, data flow, dependencies, reuse points, and risks.
-- Label which business entries each code path, interface, and risk covers when the module uses an entry-bundle.
-- Save to the fixed `.hotpot` path when the result will feed later work:
-  - requirement scope: `.hotpot/[req]/pre-analysis.md`
-  - module scope: `.hotpot/[req]/modules/[mod]/pre-analysis.md`
-
-Do not:
-
-- Enumerate user scenarios; use `hot-use-cases`.
-- Split modules; use `hot-module-split`.
-- Propose business spec or technical solution.
-- Treat code or protocol facts as confirmed product rules.
-- Start implementation.
+开始前按需读取 `../../references/shared-conventions.md` 的 Context、Module、Artifact Resolution 与 Business Entry Resolution。写入时再读取 `../../references/output-style-guide.md` 和 `../../references/artifact-templates.md` 的“前置分析”模板。
 
 ## Workflow
 
-1. Resolve requirement and optional module scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
-2. Read `.hotpot/[req]/requirement.md` if present; use it to focus the code search, not as a substitute for verified code facts.
-3. For module scope, perform Artifact Resolution. If it is an entry-bundle, read the README index; resolve a specific business entry only when the request targets one.
-4. Search the codebase with fast text/file search before drawing conclusions.
-5. Read the smallest useful set of files that establish current behavior and label findings as shared or entry-specific.
-6. Keep `pre-analysis.md` module-level by default. Use business-entry subsections when code paths are independent; do not mechanically create one file per entry.
-7. Produce a structured `Pre Analysis` artifact using `../../references/artifact-templates.md`.
-8. Include `Metadata` with requirement, scope, module, skill, created date, and updated date.
-9. List open questions only when they affect later spec or plan decisions.
+1. 解析 requirement 和可选 module；已有 `requirement.md` 只用于聚焦搜索。
+2. 模块 scope 先做 Artifact Resolution；entry-bundle 先读 README 索引，仅在请求指向某入口时解析该 entry。
+3. 用快速文件/文本搜索定位入口，再读取能证明当前行为的最小文件集合，包括必要的路由、API、模型、测试、配置和文档。
+4. 将事实、假设、风险分开；每个事实引用文件、文档或命令。标注代码路径、接口和风险覆盖哪些 entry，以及是共享还是局部。
+5. 默认写一个 module-level `pre-analysis.md`；独立路径可用 entry 小节，不机械拆文件。
+6. 按模板记录现状、结构、数据流/依赖、复用点、风险和影响后续决策的未知项，包含 Metadata。
 
-## Output Requirements
+## Quality Bar
 
-- Put `Summary` first.
-- Every factual claim should cite a file path, doc path, or observed command.
-- Use Mermaid for structure, dependency, or data-flow relationships.
-- Mark assumptions explicitly as assumptions.
-
-## Completion Criteria
-
-- A reader can find the relevant code areas without repeating the search.
-- Existing behavior and reuse points are clear.
-- Risks and unknowns are concrete enough to guide the next skill.
-
-## Suggested Next Steps
-
-- If the scope is too broad: `hot-module-split`.
-- If behavior boundaries are the main risk: `hot-use-cases`.
-- If behavior is already clear: `hot-spec`.
+- 摘要先行；流程、结构、依赖或数据流使用 Mermaid。
+- 读者无需重复搜索即可找到相关代码并理解现有行为。
+- 不把代码现状当作已确认业务规则，不枚举完整用例、拆模块或提出实现方案。

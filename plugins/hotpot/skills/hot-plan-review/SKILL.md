@@ -5,63 +5,17 @@ description: Use when hotpot business artifacts or a technical plan need review 
 
 # Hotpot Plan Review
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`, `../../references/review-checklist.md`.
+就地审查 plan 与 canonical 业务产物，findings 优先；不做代码 review、不改代码、不重写整个计划。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Review the canonical business artifacts and plan before execution. Findings lead. This is a design/plan review, not a code review and not an implementation step.
-
-## Boundaries
-
-Do:
-
-- Compare plan against canonical business artifacts and known code constraints.
-- Find omissions, contradictions, boundary leaks, dependency risks, verification gaps, and unimplementable instructions.
-- Save to the fixed `.hotpot` path when useful:
-  - requirement scope: `.hotpot/[req]/plan-review.md`
-  - module scope: `.hotpot/[req]/modules/[mod]/plan-review.md`
-
-Do not:
-
-- Modify code.
-- Rewrite the whole plan unless the user asks.
-- Dispatch review subagents in Codex.
+开始前按需读取 `../../references/shared-conventions.md` 中的 Context、Module、Artifact Resolution 与 Business Entry Resolution，并读取 `../../references/review-checklist.md`。写入时再读取 `../../references/output-style-guide.md` 和 `../../references/artifact-templates.md` 的“计划评审”模板。
 
 ## Workflow
 
-1. Resolve requirement and scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
-2. For module scope, perform Artifact Resolution and Business Entry Resolution.
-3. Read `.hotpot/[req]/requirement.md`, `plan.md`, and `pre-analysis.md` when present. Read `spec.md` / `use-cases.md` in single-file mode or README, shared rules, and relevant entries in entry-bundle mode.
-4. Use `../../references/review-checklist.md`. For an entire entry-bundle, verify every entry has a plan landing point and every shared rule has one consistent implementation approach.
-5. Check that entry-local questions were not promoted to module-wide behavior, cross-entry contracts were not omitted, and unresolved questions were not silently decided.
-   - Treat any plan produced while a blocking question is unconfirmed as a blocking review finding.
-   - Verify that deleted single-file or entry-local question sections have source-Case-backed conclusions in canonical rules, interface dependencies, extra code-external work, or another formal contract section.
-   - Allow confirmed shared-question records to remain in `共享待确认项`.
-6. Lead with findings ordered by severity.
-7. For each finding, include:
-   - severity,
-   - concrete issue,
-   - evidence from spec/plan/code,
-   - recommended fix.
-8. Give a verdict:
-   - ✅ 通过,
-   - ⚠️ 有条件通过,
-   - ❌ 需修改.
-9. Include `Metadata`; for module scope, update `.last-module`.
+1. 解析 scope；读取 `requirement.md`、`plan.md`、可用的 `pre-analysis.md`，以及当前 artifact mode 的 canonical spec/use cases 或 README/shared rules/entries。
+2. 对照 checklist 查遗漏、矛盾、边界泄漏、依赖风险、验证缺口和不可实施内容。整 bundle 必须覆盖每个 entry，并为每条 shared rule 提供一致实现口径。
+3. 检查局部问题是否被误提升、跨 entry 契约是否遗漏、未确认项是否被静默定案。Treat any plan produced while a blocking question is unconfirmed as a blocking review finding.
+4. 若临时问题区已删除，确认每个结论已带来源 Case 落到正式契约；允许共享问题保留已确认记录。
+5. findings 按严重度排序，每项包含具体问题、spec/plan/code 证据和修复建议。
+6. 给出 `✅ 通过 / ⚠️ 有条件通过 / ❌ 需修改`，按模板写入并更新 Metadata/指针。
 
-## P20 Rule
-
-In Codex, complete this review in place. Do not start a review subagent. If independent review is needed, the human decides manually.
-
-## Output Requirements
-
-Use the `Plan Review` template from `../../references/artifact-templates.md`.
-
-If there are no issues, say that clearly and list residual risk or verification gaps.
-
-## Suggested Next Steps
-
-- If findings exist: revise `hot-spec` or `hot-plan`.
-- If approved: use `/goal` to execute from the spec and plan.
+无问题时也要明确结论和残余风险或验证缺口。Codex 中由当前 agent 完成，不启动 review subagent。

@@ -5,65 +5,18 @@ description: Use when a requirement needs decomposition into modules, responsibi
 
 # Hotpot Module Split
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`.
+按业务职责拆分模块，明确归属、依赖、顺序和每个模块的 artifact mode 建议。不展开 entry 内部规则，不选择文件/组件，不写实现。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Split a requirement into modules with clear ownership, boundaries, dependencies, recommended order, and a lightweight complexity check for business entries inside each module.
-
-## Boundaries
-
-Do:
-
-- Define each module by responsibility, inputs, outputs, dependencies, and non-goals.
-- Resolve ownership of shared concepts.
-- Identify dependency order and parallelizable work.
-- Identify business entry boundaries and recommend `single-file` or `entry-bundle` for each module.
-- Save to `.hotpot/[req]/module-split.md` when useful.
-
-Do not:
-
-- Expand detailed flows, rules, interfaces, or implementation inside a business entry.
-- Choose files, components, hooks, or services.
-- Enumerate detailed use cases; use `hot-use-cases`.
-- Execute code changes.
+开始前读取 `../../references/shared-conventions.md` 的 Context Resolution，以及 Artifact Resolution 中的模式选择信号。写入时再读取 `../../references/output-style-guide.md` 和 `../../references/artifact-templates.md` 的“模块拆分”模板。
 
 ## Workflow
 
-1. Resolve or create the requirement using `../../references/shared-conventions.md` Context Resolution; do not silently create or select context.
-2. Read `.hotpot/[req]/requirement.md` if present; otherwise read the raw request. Also read any existing `.hotpot/[req]/pre-analysis.md`.
-3. Identify candidate modules by business responsibility first, not by file names.
-4. Check for ambiguous ownership: shared state, shared validation, cross-module data, UI vs service responsibilities.
-5. Produce 2-7 modules. If there are more, split the requirement into separate requirements.
-6. For each module, check the business-entry complexity signals in `../../references/shared-conventions.md` Artifact Resolution.
-7. When `entry-bundle` is recommended, list only each entry ID, entry or main-flow name, independent responsibility, boundary, and shared-rule candidates.
-8. Draw a dependency graph and suggest execution order. Business entries remain inside their module and do not enter the requirement dependency graph.
-9. Include `Metadata` and update `.hotpot/[req]/_meta.md`.
+1. 解析 requirement；读取现有 `requirement.md`、`pre-analysis.md`，缺失时使用原始需求。
+2. 按业务责任识别 2–7 个模块，而不是按文件名拆分；更多时建议拆成多个 requirement。
+3. 为每个模块定义一句话职责、输入、输出、依赖和不做什么；解决共享状态、校验、跨模块数据及 UI/服务的归属。
+4. 一个概念只设一个 owner；避免循环依赖，出现时调整边界。
+5. 用 Artifact Resolution 的复杂度信号推荐 `single-file` 或 `entry-bundle`。复杂模块只列 entry ID/名称、独立职责、边界和共享规则候选，不展开流程与规则。
+6. 画模块依赖图，标注顺序和可并行项；entry 保持在所属模块内。
+7. 按模板写 `module-split.md`，包含 Metadata 并更新 `_meta.md`。
 
-## Boundary Rules
-
-- One concept has one owner.
-- A module should be explainable in one sentence.
-- Avoid circular dependencies. If one appears, propose a boundary change.
-- Use negative boundaries: explicitly state what a module does not do.
-- Treat buttons, fields, API methods, and implementation files as insufficient business-entry boundaries by themselves.
-
-## Output Requirements
-
-Use the `Module Split` template from `../../references/artifact-templates.md`.
-
-Include:
-
-- Summary table.
-- Mermaid dependency graph.
-- Module details.
-- Artifact mode recommendation and a lightweight business-entry index for complex modules.
-- Boundary decisions.
-- Suggested order.
-
-## Suggested Next Steps
-
-- For each module or for the full requirement: `hot-use-cases`.
-- If implementation details are still unknown: `hot-pre-analysis` for a specific module.
+按钮、字段、API 方法或实现文件本身不足以成为模块或业务入口边界。

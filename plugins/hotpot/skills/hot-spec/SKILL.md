@@ -5,84 +5,25 @@ description: Use when a requirement or module needs a business specification or 
 
 # Hotpot Spec
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`.
+定义必须成立的行为契约、规则、状态、边界、接口依赖和验证期望。不设计目录/组件，不写代码，不默认要求新单测。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Create the business specification or behavior contract. The spec answers what must be true, not how the code is organized.
-
-## Boundaries
-
-Do:
-
-- Define behavior contract, business rules, boundaries, state/flow, acceptance criteria, and verification expectations.
-- Use existing canonical business artifacts, `requirement.md`, `module-split.md`, and `pre-analysis.md` when available.
-- Explicitly state whether new unit tests are required.
-- Save to the resolved `.hotpot` artifact path when useful:
-  - requirement scope: `.hotpot/[req]/spec.md`
-  - module single-file: `.hotpot/[req]/modules/[mod]/spec.md`
-  - module entry-bundle: `.hotpot/[req]/modules/[mod]/shared-rules.md` and selected `entries/*.md`
-
-Do not:
-
-- Choose directories, components, hooks, services, or file responsibilities.
-- Write implementation code.
-- Default to “需单测”.
+开始前按需读取 `../../references/shared-conventions.md` 中的 Context、Module、Artifact Resolution、Business Entry Resolution 和问题生命周期。写入时再读取 `../../references/output-style-guide.md`，以及 `../../references/artifact-templates.md` 的“规格”或业务入口 README/Shared Rules/Entry 模板。
 
 ## Workflow
 
-1. Resolve requirement and scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
-2. For module scope, perform Artifact Resolution and Business Entry Resolution before reading or writing business artifacts.
-3. If no module business artifacts exist, follow the same mode-selection rules as `hot-use-cases`; do not create an entry-bundle without explicit user direction or confirmation.
-4. Read `.hotpot/[req]/requirement.md` and canonical scenario inputs when present. If no use cases exist, enumerate only the minimum scenarios needed; do not pretend a full `hot-use-cases` pass was done.
-5. In single-file mode:
-   - create `待澄清问题` only when the spec has an open question,
-   - keep the complete question section while any question remains unconfirmed,
-   - after every question is confirmed, first move every conclusion into `业务规则`, `接口依赖`, `额外工作项（代码外）`, or another canonical contract section with its source Case, then delete the complete question section,
-   - never delete a question section while a conclusion still lacks a canonical landing point.
-6. In entry-bundle mode:
-   - place rules or questions used by two or more entries in `shared-rules.md`,
-   - place entry-local behavior, rules, questions, interface dependencies, verification, and business boundaries in the selected entry,
-   - create `本入口相关问题` only when the entry has a local question,
-   - keep the complete entry question section while any local question remains unconfirmed; after all local questions are confirmed, first move every conclusion into `本入口局部规则`, `接口依赖`, `额外工作项（代码外）`, or another canonical entry contract section with its source Case, then delete the complete question section,
-   - when deleting an entry question section, remove its rows from the module README question summary and refresh the blocking count,
-   - preserve confirmed rows in `共享待确认项` after their conclusions are written to the canonical shared sections,
-   - preserve the entry goal, flows, branches, failures, races, non-goals, and acceptance scenarios owned by `hot-use-cases`,
-   - keep cross-Case information in README boundaries and never use it as confirmation evidence for the current Case.
-7. Record each open question's type, source Case, affected entries when applicable, current wording, blocking status, and confirmation status. Do not label an inference as PRD-confirmed.
-8. Check for duplicated shared rules, entry-local interface questions detached from their entry, and a rules-by-type layout that hides entry context.
-9. Fill `Verification`:
-   - Default: run app, walk scenarios, run existing tests.
-   - Write `需单测：是` only when the requirement explicitly needs new unit tests, such as pure logic, complex state machines, or regression-sensitive rules.
-10. Read the complete existing file before updating it; report conflicts instead of overwriting another skill's content.
-11. Include `Metadata`; for module scope, update `.last-module`, and update `.last-entry` only for a selected entry.
-12. For entry-bundle writes, run `../../scripts/validate_artifacts.py` against the module directory when the script is available.
+1. 解析 requirement 与 scope；模块 scope 先做 Artifact Resolution 和 Business Entry Resolution。无业务产物时沿用 `hot-use-cases` 的模式选择规则。
+2. 读取 `requirement.md` 与 canonical scenarios。没有用例时只补足写契约所需的最小场景，不冒充完整 use-case 分析。
+3. single-file：仅有开放问题时创建 `待澄清问题`。任一问题未确认时保留整个区；全部确认后，先把每项结论及来源 Case 写入规则、接口、代码外工作项或其他正式章节，再统一删除整个问题区。
+4. entry-bundle：
+   - 两个以上 entry 共用的规则或问题放 `shared-rules.md`，局部内容留在目标 entry。
+   - 仅有局部开放问题时创建 `本入口相关问题`；沿用同样的完整保留与统一删除生命周期。
+   - 删除 entry 问题区时同步 README 问题摘要和阻断数；`共享待确认项` 的已确认记录保留。
+   - 保留 `hot-use-cases` 负责的目标、流程、分支、失败、竞态、非目标和验收场景。
+5. 每个问题记录类型、来源 Case、影响 entries、当前口径、阻断状态和确认状态；推断不得标为 PRD 已确认，跨 Case 信息不得确认当前 Case。
+6. 查找重复共享规则、失去 entry 语境的接口问题，以及按规则类型平铺导致的入口上下文丢失。
+7. 填写 Verification：默认跑应用、走查场景、运行已有测试；仅纯逻辑、复杂状态机、回归敏感规则或明确要求时写 `需单测：是` 并说明理由。
+8. 修改前读完整文件；冲突时停止。写 Metadata、更新指针，并对 entry-bundle 运行 validator。
 
-## Output Requirements
+## Quality Bar
 
-Use the `Spec` template for single-file mode. Use the module README, Shared Rules, and Entry templates for entry-bundle mode.
-
-The spec must let `hot-plan` answer:
-
-- Which behavior must be implemented?
-- Which rules must not be violated?
-- Which states and boundaries matter?
-- How should completion be verified?
-
-## Red Flags
-
-- File paths or import statements appear in spec.
-- Business rules are mixed with implementation preferences.
-- Verification says “test it” without a concrete method.
-- “需单测：是” appears without a reason.
-- A module has multiple independent entries but rules are still flattened by rule type.
-- The same detailed rule appears in multiple entries instead of `shared-rules.md`.
-- An entry-local interface question is moved into a context-free module summary.
-- A navigation-only `spec.md` is created for entry-bundle compatibility.
-
-## Suggested Next Steps
-
-- If technical design is needed: `hot-plan`.
-- If the spec feels risky or incomplete: `hot-plan-review` after plan, or revise spec first.
+产物必须让 `hot-plan` 无需重新决定业务行为即可回答：实现什么、不能违反什么、哪些状态/边界重要、如何验证。出现文件路径、import、实现偏好、无理由单测或重复局部规则时应修正。

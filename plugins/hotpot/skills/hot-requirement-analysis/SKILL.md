@@ -5,77 +5,27 @@ description: Use when a raw product request, ticket, PRD, bug report, or convers
 
 # Hotpot Requirement Analysis
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`.
+将原始输入整理成简短的需求卡片并给出一个路由结论。不检查代码，不写业务契约、完整场景、模块设计或技术方案。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Understand a raw requirement before downstream hotpot work. Produce a short requirement card that captures source, goal, scope, constraints, ambiguities, and the safest next hotpot step.
-
-## Boundaries
-
-Do:
-
-- Resolve the hotpot requirement context before writing.
-- Resolve the raw requirement source before analysis.
-- Extract goal, motivation, explicit in/out scope, constraints, assumptions, and ambiguous key terms.
-- Mark open questions as blocking or non-blocking.
-- Produce one triage verdict and save `.hotpot/[req]/requirement.md`.
-
-Do not:
-
-- Guess requirement content from a branch name, requirement slug, or existing spec/plan.
-- Write behavior contracts, business rules, state machines, or acceptance criteria; use `hot-spec`.
-- Inspect code; use `hot-pre-analysis`.
-- Split modules; use `hot-module-split`.
-- Enumerate full scenarios; use `hot-use-cases`.
-- Trigger the next skill automatically.
+开始前读取 `../../references/shared-conventions.md` 的 `Context Resolution` 与读写规则。写入时再读取 `../../references/output-style-guide.md` 和 `../../references/artifact-templates.md` 的“需求分析”模板。
 
 ## Workflow
 
-1. Resolve or create the requirement using `../../references/shared-conventions.md` Context Resolution; do not silently create or select context.
-2. Resolve the raw requirement source:
-   - Use the user's current message when it contains the requirement.
-   - Use a provided local file path, PRD, ticket, bug report, or pasted conversation when supplied.
-   - For updates, read existing `.hotpot/[req]/requirement.md` only as prior context, not as the original source.
-   - If no raw source is available, STOP and ask for the requirement source before writing.
-3. Quote or precisely paraphrase the core ask; keep source attribution explicit.
-4. Extract goal, scope, constraints, assumptions, and ambiguous key terms.
-5. List open questions; mark each question's downstream impact and whether it blocks progress.
-6. Choose exactly one verdict using this priority:
-   - `clarify-first`: blocking ambiguity prevents safe downstream work.
-   - `hot-module-split`: multiple responsibilities, modules, ownership boundaries, or dependency order are unclear.
-   - `hot-pre-analysis`: existing system behavior, code location, data flow, or reuse risk must be known first.
-   - `hot-use-cases`: branches, failures, races, or acceptance boundaries are the main risk.
-   - `hot-spec`: requirement is small and clear enough to write a behavior contract.
-7. When the source already contains multiple independent business entries or main flows, prefer `hot-module-split` and note that each resulting module must still run the business-entry complexity check. Do not create entry files during requirement analysis.
-8. Write the requirement card using the `Requirement` template from `../../references/artifact-templates.md`.
-9. Include `Metadata` and update `.hotpot/[req]/_meta.md` `Updated`.
+1. 解析或创建 requirement，不静默选择上下文。
+2. 确定原始来源：当前消息、用户提供的文件/PRD/工单/缺陷/对话。更新任务可把现有 `requirement.md` 当历史背景，但不能当原始来源；没有来源就停止询问。
+3. 引用或精确转述核心诉求，提取目标、动机、范围内/外、约束、假设和歧义术语。
+4. 列出问题及下游影响，标记是否阻断。
+5. 按优先级选择且只选择一个结论：
+   - `clarify-first`：缺失决定会改变范围、用户行为或模块归属。
+   - `hot-module-split`：多个职责、边界、归属或依赖顺序不清。
+   - `hot-pre-analysis`：必须先确认现有行为、代码、数据流或复用风险。
+   - `hot-use-cases`：主要风险是分支、失败、竞态或验收边界。
+   - `hot-spec`：需求小且清晰，可直接定义行为契约。
+6. 原始输入已有多个独立入口或主流程时优先 `hot-module-split`，但本阶段不创建 entry 文件。
+7. 按模板写 `requirement.md`，包含 source locator 与 Metadata，并更新 `_meta.md`。
 
-## Output Requirements
+## Quality Bar
 
-- Put `Summary` and verdict before details.
-- Keep it short and scannable; this is a card, not a full spec.
-- Include source locator, even when the source is the current conversation.
-- Use `clarify-first` when a missing decision could change scope, user-visible behavior, or module ownership.
-- If the source is vague but work can continue safely, list the default assumption in `Open Questions / Ambiguities`.
-
-## Red Flags
-
-| Red flag | Correction |
-|---|---|
-| Requirement content inferred from slug or branch | Ask for or read the raw source |
-| No source locator | Add conversation/file/ticket attribution |
-| Acceptance criteria or state machines appear | Move that work to `hot-spec` |
-| File paths or code structure appear | Move that work to `hot-pre-analysis` |
-| Multiple modules are designed in detail | Move that work to `hot-module-split` |
-| Open questions are empty while the source is vague | Record ambiguity or stop for clarification |
-
-## Suggested Next Steps
-
-- `clarify-first`: ask the blocking questions before another hotpot skill.
-- `hot-module-split`: split modules or sub-tasks.
-- `hot-pre-analysis`: inspect existing implementation and risks.
-- `hot-use-cases`: enumerate scenarios and acceptance boundaries.
-- `hot-spec`: write the behavior contract.
+- 摘要和结论先行；保持卡片化，不扩写成 spec。
+- 模糊但可安全继续时明确默认假设；会影响关键决策时使用 `clarify-first`。
+- 不从 branch、slug 或已有计划反推需求；不出现文件设计、状态机或验收契约。

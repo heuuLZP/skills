@@ -5,65 +5,24 @@ description: Use when a requirement or module needs scenario enumeration before 
 
 # Hotpot Use Cases
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`.
+枚举可观察场景，不定义业务契约、实现文件或测试方案，也不默认新增单测。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Enumerate the scenarios a requirement must satisfy. This is the place where P19 gets its value: scenario discovery before implementation, without defaulting to new unit test files.
-
-## Boundaries
-
-Do:
-
-- Capture primary flows, branches, edge cases, failure cases, race conditions, non-goals, and acceptance scenarios.
-- Include user-visible behavior and system behavior.
-- Save to the resolved `.hotpot` artifact path when useful:
-  - requirement scope: `.hotpot/[req]/use-cases.md`
-  - module single-file: `.hotpot/[req]/modules/[mod]/use-cases.md`
-  - module entry-bundle: `.hotpot/[req]/modules/[mod]/README.md` and selected `entries/*.md`
-
-Do not:
-
-- Write the business contract; use `hot-spec`.
-- Choose implementation files or libraries; use `hot-plan`.
-- Add tests by default.
+开始前按需读取 `../../references/shared-conventions.md` 中的 Context、Module、Artifact Resolution、Business Entry Resolution 和章节所有权。写入时再读取 `../../references/output-style-guide.md`，以及 `../../references/artifact-templates.md` 的“用例”或业务入口 README/Entry 部分。
 
 ## Workflow
 
-1. Resolve requirement and scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
-2. For module scope, perform Artifact Resolution and Business Entry Resolution before reading or writing business artifacts.
-3. If no module business artifacts exist, apply the mode-selection rules: use single-file for a simple module; propose `entry-bundle` for strong complexity signals and wait for confirmation unless the user already requested entry-based organization.
-4. Read `requirement.md`, `module-split.md`, and relevant `pre-analysis.md` content when present.
-5. In single-file mode, keep the existing workflow and `Use Cases` template.
-6. In entry-bundle mode:
-   - read `README.md`, `shared-rules.md`, and only the selected entries unless the user requested the whole module,
-   - create or update the `Entry` template sections from “入口与目标” through “验收场景”,
-   - preserve every section owned by `hot-spec`, including rules, questions, interface dependencies, verification, and business boundaries,
-   - maintain the README entry index and summary without duplicating entry details.
-7. Start with primary flows, then add branches, boundaries, failures, races, non-goals, and checkable acceptance scenarios.
-8. Read the complete existing file before updating it; report conflicts instead of overwriting another skill's content.
-9. Include `Metadata`; for module scope, update `.last-module`, and update `.last-entry` only for a selected entry.
-10. For entry-bundle writes, run `../../scripts/validate_artifacts.py` against the module directory when the script is available.
+1. 解析 requirement 与 scope；模块 scope 必须先做 Artifact Resolution 和 Business Entry Resolution。
+2. 模块尚无业务产物时按模式信号选择：简单模块用 single-file；强复杂度信号先建议 entry-bundle 并等待确认，除非用户已明确要求。
+3. 读取已有 `requirement.md`、`module-split.md` 和相关 `pre-analysis.md`。
+4. 从主流程开始，补充分支、边界、失败、竞态、非目标和可检查的验收场景。
+5. single-file 使用“用例”模板。
+6. entry-bundle 只读取 README、shared rules 和选中 entries（整模块请求除外）；只维护 Entry 从“入口与目标”到“验收场景”的章节，同时更新 README 索引和摘要。保留 `hot-spec` 所有章节。
+7. 修改前读完整文件；冲突时停止报告，不覆盖其他 skill 内容。
+8. 写 Metadata、更新 module/entry 指针，并运行 artifact validator。
 
-## Output Requirements
+## Quality Bar
 
-Use the `Use Cases` template for single-file mode. Use the module README and Entry templates for entry-bundle mode.
-
-Every acceptance scenario should be checkable later by `hot-check`.
-
-## Common Mistakes
-
-| Mistake | Correction |
-|---|---|
-| Only listing happy paths | Include branch, failure, and race cases |
-| Writing implementation decisions | Stop at observable behavior |
-| Treating scenarios as mandatory unit tests | Verification method is decided later in spec/plan |
-| Reading or rewriting every entry for a single-entry request | Resolve and update only the selected entry plus shared context |
-| Creating a navigation-only `use-cases.md` | In entry-bundle mode, do not create compatibility single files |
-
-## Suggested Next Steps
-
-- If behavior should be locked: `hot-spec`.
-- If the scenario list exposes unclear ownership: `hot-module-split`.
+- 不只列 happy path；必须考虑相关失败和竞态。
+- 场景停在行为层，不夹带库、文件或组件决定。
+- 每个验收场景以后能被 `hot-check` 明确判定。
+- 单入口请求不读取或重写无关 entries；entry-bundle 不创建导航型 `use-cases.md`。

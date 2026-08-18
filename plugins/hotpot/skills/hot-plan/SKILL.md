@@ -5,87 +5,26 @@ description: Use when canonical hotpot business artifacts are ready and the work
 
 # Hotpot Plan
 
-**Required reading:** `../../references/output-style-guide.md`, `../../references/shared-conventions.md`, `../../references/artifact-templates.md`.
+把 canonical 业务契约映射为可执行的技术设计，供 `/goal` 或编码 agent 实现。只做架构落点，不写代码，也不拆成微任务清单。
 
-This skill is part of the `hotpot` package. Install the whole package so shared references at `../../references/` are available.
-
-## Purpose
-
-Produce a technical landing plan for `/goal` or a coding agent. This plan describes how the code should be organized and verified, but it does not write code and does not split work into an execution checklist.
-
-## Boundaries
-
-Do:
-
-- Map spec behavior to directories, files, components, hooks, services, utils, state, and data flow.
-- Choose interaction infrastructure and reuse existing project patterns.
-- Identify key exported functions, complex logic, and places needing comments or JSDoc.
-- Define verification points.
-- Save to the fixed `.hotpot` path when useful:
-  - requirement scope: `.hotpot/[req]/plan.md`
-  - module scope: `.hotpot/[req]/modules/[mod]/plan.md`
-
-Do not:
-
-- Write code.
-- Break the work into atomic execution tasks.
-- Execute changes.
-- Add new unit tests unless spec `Verification` explicitly says “需单测：是”.
+开始前按需读取 `../../references/shared-conventions.md` 中的 Context、Module、Artifact Resolution、Business Entry Resolution 和验证规则。写入时再读取 `../../references/output-style-guide.md` 和 `../../references/artifact-templates.md` 的“计划”模板。
 
 ## Workflow
 
-1. Resolve requirement and scope using `../../references/shared-conventions.md` Context Resolution and Module Resolution; do not silently create or select context.
-2. For module scope, perform Artifact Resolution and Business Entry Resolution before reading business artifacts.
-3. Read `pre-analysis.md` and canonical business artifacts:
-   - single-file: `spec.md` and relevant `use-cases.md`,
-   - entry-bundle: `README.md`, `shared-rules.md`, and the selected or all relevant entries.
-   Read `.hotpot/[req]/requirement.md` only as scope/constraint background.
-4. Inspect every canonical question section before planning:
-   - if any question has `是否阻断：是` and is not `已确认`, STOP and direct the user back to `hot-spec`,
-   - non-blocking unconfirmed questions may remain, but list them as unresolved dependencies or risks and never choose a wording on the user's behalf,
-   - the absence of a temporary single-file or entry-local question section means those questions have completed the `hot-spec` settlement workflow; confirmed shared-question records may remain in `共享待确认项`.
-5. Inspect code paths needed to avoid inventing architecture.
-6. Design files and responsibilities. Prefer existing project patterns and mark every responsibility and verification point with the business entries it covers.
-7. Design state and data flow, including request/cache/race handling and contracts shared across entries.
-8. Decide interaction infrastructure:
-   - Use mature libraries or existing wrappers for drag/drop, virtual scroll, forms, data fetching, caching, and concurrency.
-   - Do not hand-roll well-established infrastructure unless the spec requires it.
-9. Add comment/JSDoc requirements only where logic is non-obvious.
-10. Define verification points from canonical scenarios and shared rules.
-11. Include `Metadata`; for module scope, update `.last-module`.
+1. 解析 requirement 与 scope；模块 scope 先做 Artifact Resolution 和 Business Entry Resolution。
+2. 读取 `pre-analysis.md`、相关代码与 canonical business artifacts：single-file 读 spec/相关 use cases；entry-bundle 读 README、shared rules 和目标或全部相关 entries。`requirement.md` 只作范围背景。
+3. 检查所有 canonical 问题区：
+   - 若存在标记为 `是否阻断：是` and is not `已确认` 的问题，停止并返回 `hot-spec`。
+   - 未确认的非阻断问题保留为依赖或风险，不替用户选择口径。
+   - 临时问题区已删除表示完成沉淀；共享问题的确认记录可继续保留。
+4. 检查相关代码以避免发明新架构，优先复用项目惯例。
+5. 设计目录/文件职责、组件/钩子/服务、状态与数据流、请求/缓存/竞态处理；每项标注覆盖的 spec/rule/entry。
+6. 拖拽、虚拟滚动、表单、数据请求、缓存和并发优先使用成熟库或现有 wrapper，除非 spec 要求自研。
+7. 只对非显然逻辑要求注释/JSDoc；从 canonical 场景和共享规则定义验证点。
+8. 按模板写 plan 与 Metadata，更新 module 指针。
 
-## P19 Verification Rule
+## Verification Rule
 
-Default verification is:
+默认运行应用/相关命令、走查场景、运行已有测试。只有 `hot-spec` 明确 `需单测：是` 时才规划新增单测及其覆盖行为。
 
-- run the app or relevant command,
-- walk the enumerated scenarios,
-- run existing tests.
-
-Only require new unit tests when `hot-spec` explicitly says `需单测：是`. If it does, say where the tests belong and which behavior they cover.
-
-If `requirement.md` conflicts with the canonical business artifacts, stop and recommend revising `hot-spec`; do not bypass confirmed decisions in the technical plan.
-
-## Output Requirements
-
-Use the `Plan` template from `../../references/artifact-templates.md`.
-
-The plan must be enough for `/goal` to implement without re-deciding architecture, but it must not become code or a micro-task checklist.
-
-## Common Mistakes
-
-| Mistake | Correction |
-|---|---|
-| Rewriting the spec in technical words | Map behavior to concrete code responsibilities |
-| Listing “implement X” tasks | Keep to technical design, not execution checklist |
-| Defaulting to new unit tests | Follow spec Verification |
-| Ignoring existing patterns | Inspect and reuse project conventions |
-| Planning through an unresolved blocker | Stop and return to `hot-spec` |
-| Silently deciding a non-blocking question | Keep it as an explicit dependency or risk |
-| Requiring `spec.md` in an entry-bundle | Resolve and read README, shared rules, and relevant entries |
-| Creating one plan per entry mechanically | Organize by code architecture, but label business-entry coverage |
-
-## Suggested Next Steps
-
-- If risk is non-trivial: `hot-plan-review`.
-- To implement: ask `/goal` to execute using the spec and plan.
+若 `requirement.md` 与 canonical 业务产物冲突，停止并先修订 `hot-spec`。计划应足以实施而无需重做架构决策，但不得变成代码、spec 复述或执行 checklist。
