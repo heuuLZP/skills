@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILLS=(ai-reflect arch-review commit human-review)
+SKILLS=(ai-reflect arch-coach arch-review commit human-review)
 
 remove_matching_link() {
   local target="$1"

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-STANDALONE=(ai-reflect arch-review commit human-review)
+STANDALONE=(ai-reflect arch-coach arch-review commit human-review)
 HOTPOT=(hot-requirement-analysis hot-pre-analysis hot-module-split hot-use-cases hot-spec hot-plan hot-plan-review hot-check)
 
 python3 -m json.tool "$REPO_ROOT/.agents/plugins/marketplace.json" >/dev/null
@@ -23,6 +23,12 @@ for skill in "${STANDALONE[@]}"; do
   ' "$REPO_ROOT/skills/$skill/SKILL.md" "$skill"
   ruby -ryaml -e 'YAML.safe_load(File.read(ARGV[0]))' "$REPO_ROOT/skills/$skill/agents/openai.yaml"
 done
+
+ruby -ryaml -e '
+  data = YAML.safe_load(File.read(ARGV[0]))
+  abort "arch-coach must disable implicit invocation" unless data.dig("policy", "allow_implicit_invocation") == false
+' "$REPO_ROOT/skills/arch-coach/agents/openai.yaml"
+
 for skill in "${HOTPOT[@]}"; do
   test -f "$REPO_ROOT/plugins/hotpot/skills/$skill/SKILL.md"
   ruby -ryaml -e '

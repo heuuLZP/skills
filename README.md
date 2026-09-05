@@ -7,11 +7,12 @@
 | Skill | 何时使用 | 主要结果 | 示例 |
 |---|---|---|---|
 | `ai-reflect` | 回顾近期 AI 使用习惯、协作质量或依赖程度 | 基于 Claude Code 与 Codex 会话生成四维协作复盘报告 | “分析我最近一周使用 AI 的情况” |
+| `arch-coach` | 显式调用后，按阶段练习架构理解、诊断、决策或复盘 | 基于真实证据完成一次架构训练，保留最终取舍给用户确认 | `$arch-coach diagnose 诊断这个项目的权限架构问题` |
 | `arch-review` | 完成功能后复盘业务、应用和技术架构思考 | 找出一个最值得深入的架构盲点，给出对比与思考题 | “用 arch-review 复盘这次改动” |
 | `commit` | 需要分析 Git 改动、生成提交信息或拆分提交 | 合理暂存并创建一个或多个 Git commit | “提交当前改动” |
 | `human-review` | 显式选择该 skill，逐批理解、修复和批准待提交改动 | AI 先建立改动地图并评估工程质量，获授权后修复问题并逐批提交 | `/human-review` |
 
-除 `human-review` 外，可以直接描述任务，也可以在提示词中明确指定 skill 名称，客户端会根据 skill 的 description 判断是否加载完整工作流。`human-review` 仅在用户通过技能选择器或使用 `/human-review`、`$human-review`、“使用 human-review”等方式显式调用时启用；普通的“代码审查”或 “code review” 请求使用模型默认的代码审核方式，不加载人工分批审批流程。
+`arch-coach` 和 `human-review` 仅在用户通过技能选择器或显式写出 skill 名称时启用。`arch-coach` 使用 `understand → diagnose → decide → review` 四个独立阶段，阶段之间不会自动串联；普通架构问题不加载该训练流程。其余独立 skill 可以直接描述任务，也可以在提示词中明确指定名称，客户端会根据 description 判断是否加载完整工作流。
 
 ## Hotpot Plugin
 
@@ -85,7 +86,7 @@ claude plugin marketplace add heuuLZP/skills
 claude plugin install hotpot@heuulzp-skills --scope user
 ```
 
-如果需要四个独立 skill，克隆仓库后运行安装脚本：
+如果需要五个独立 skill，克隆仓库后运行安装脚本：
 
 ```bash
 git clone https://github.com/heuuLZP/skills.git
@@ -95,7 +96,7 @@ cd skills
 
 ## 本地安装
 
-安装四个独立 skill：
+安装五个独立 skill：
 
 ```bash
 ./scripts/install.sh
