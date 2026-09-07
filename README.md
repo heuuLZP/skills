@@ -13,6 +13,8 @@
 
 `arch-coach` 和 `human-review` 仅在用户通过技能选择器或显式写出 skill 名称时启用。`arch-coach` 使用 `understand → diagnose → decide → review` 四个独立阶段，阶段之间不会自动串联；其中 `review` 已包含原 `arch-review` 的 Git diff 扫描、三层盲点对比、思考题和可选记录能力，原 `$arch-review` 入口不再提供。普通架构问题不加载该训练流程。其余独立 skill 可以直接描述任务，也可以在提示词中明确指定名称，客户端会根据 description 判断是否加载完整工作流。
 
+`arch-coach` 默认先在对话中预览，不会自动创建文档。用户明确要求归档后，按内容所有权选择唯一权威位置：跨项目全景和跨系统决策保存到用户确认的独立架构文档仓库；单项目、模块、组件或需求相关内容保存到该项目仓库的 `docs/architecture/`（已有项目约定优先）；个人训练复盘保存到 `~/.agents/data/arch-coach/`。项目架构事实不会写入个人全局目录，不同位置之间只保留链接或摘要，避免形成多份相互冲突的文档。
+
 ## Hotpot Plugin
 
 Hotpot 是一组用于需求协作的原子 skill。它不强制执行固定流水线，而是让人根据需求复杂度组合需要的分析步骤；代码实现交给正常的编码流程，Hotpot 负责把需求从模糊输入推进到可执行、可检查的状态。
@@ -118,8 +120,10 @@ claude plugin install hotpot@heuulzp-skills --scope user
 ## 数据位置
 
 - `ai-reflect` 报告：`~/.agents/data/ai-reflect/reports/`
+- `arch-coach` 跨项目架构：用户指定并确认的独立架构文档仓库
+- `arch-coach` 项目内架构：`<project>/docs/architecture/`，已有项目约定优先
 - `arch-coach` 可选配置：`~/.agents/data/arch-coach/config.json`
-- `arch-coach` 可选记录：`~/.agents/data/arch-coach/retrospectives.md`
+- `arch-coach` 个人训练记录：`~/.agents/data/arch-coach/retrospectives.md`
 - 旧 `arch-review` 数据：保留在 `~/.agents/data/arch-review/`，不自动迁移或删除
 - Hotpot 项目产物：`<project>/.hotpot/`
 
