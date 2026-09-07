@@ -18,4 +18,8 @@ description: Use after implementation to check completed work against canonical 
 5. 整 bundle 先按 entry 报告，再给 shared-rule 结论；单入口不加载或报告无关 entry。
 6. 结论使用 `✅ 通过 / ⚠️ 有条件通过 / ❌ 未通过`。按模板写 Metadata；结论和缺口先行，变更摘要靠后，不粘贴长 diff。
 
+## 架构决策闭环
+
+若 `plan.md` 存在“架构决策依据”，核对实现是否遵守其中的边界、约束、取舍和演进 / 兼容方式；同时检查实际改动是否新增跨边界依赖、共享能力或运行风险。偏离时报告原因和影响，不重新设计架构、不自动调用 `$arch-coach`。
+
 失败时指出具体 scenario、spec rule 或 plan responsibility，附文件/证据，并建议修订 spec、修订 plan、让 `/goal` 修复或进入常规系统化调试。Codex 中不启动 review subagent。

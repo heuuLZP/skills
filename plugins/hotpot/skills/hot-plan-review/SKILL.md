@@ -18,4 +18,15 @@ description: Use when hotpot business artifacts or a technical plan need review 
 5. findings 按严重度排序，每项包含具体问题、spec/plan/code 证据和修复建议。
 6. 给出 `✅ 通过 / ⚠️ 有条件通过 / ❌ 需修改`，按模板写入并更新 Metadata/指针。
 
+## 架构决策检查
+
+当 plan 命中高影响架构变更时：
+
+- 检查是否存在用户确认的架构决策摘要；缺失列为阻断 finding；
+- 检查计划是否遵守摘要中的边界、约束、取舍和演进 / 兼容方式；
+- 检查是否引入摘要未覆盖的新跨边界依赖、共享能力或运行风险；
+- 检查是否把未确认的架构判断写成既定事实。
+
+不自动调用 `$arch-coach`，也不在评审阶段替用户重新做架构决策。
+
 无问题时也要明确结论和残余风险或验证缺口。Codex 中由当前 agent 完成，不启动 review subagent。

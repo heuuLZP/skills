@@ -226,6 +226,41 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("`是否阻断：是` and is not `已确认`", plan_text)
         self.assertIn("blocking question is unconfirmed", review_text)
 
+    def test_architecture_decision_gate_is_consistent(self):
+        conventions = (
+            PLUGIN_ROOT / "references" / "shared-conventions.md"
+        ).read_text(encoding="utf-8")
+        plan = (PLUGIN_ROOT / "skills" / "hot-plan" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        review = (
+            PLUGIN_ROOT / "skills" / "hot-plan-review" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        check = (PLUGIN_ROOT / "skills" / "hot-check" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("高影响架构变更", conventions)
+        self.assertIn("用户确认的“架构决策摘要”", plan)
+        self.assertIn("停止生成 `plan.md`", plan)
+        self.assertIn("缺失列为阻断 finding", review)
+        self.assertIn("架构决策依据", check)
+
+    def test_architecture_handoff_is_manual(self):
+        guarded_files = (
+            PLUGIN_ROOT / "references" / "shared-conventions.md",
+            PLUGIN_ROOT / "skills" / "hot-pre-analysis" / "SKILL.md",
+            PLUGIN_ROOT / "skills" / "hot-module-split" / "SKILL.md",
+            PLUGIN_ROOT / "skills" / "hot-plan" / "SKILL.md",
+            PLUGIN_ROOT / "skills" / "hot-plan-review" / "SKILL.md",
+            PLUGIN_ROOT / "skills" / "hot-check" / "SKILL.md",
+        )
+        combined = "\n".join(path.read_text(encoding="utf-8") for path in guarded_files)
+
+        self.assertIn("$arch-coach decide", combined)
+        self.assertIn("不自动调用", combined)
+        self.assertIn("不读取固定", combined)
+
 
 if __name__ == "__main__":
     unittest.main()

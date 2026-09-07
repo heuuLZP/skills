@@ -2,13 +2,14 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-STANDALONE=(ai-reflect arch-coach arch-review commit human-review)
+STANDALONE=(ai-reflect arch-coach commit human-review)
 HOTPOT=(hot-requirement-analysis hot-pre-analysis hot-module-split hot-use-cases hot-spec hot-plan hot-plan-review hot-check)
 
 python3 -m json.tool "$REPO_ROOT/.agents/plugins/marketplace.json" >/dev/null
 python3 -m json.tool "$REPO_ROOT/.claude-plugin/marketplace.json" >/dev/null
 python3 -m json.tool "$REPO_ROOT/plugins/hotpot/.codex-plugin/plugin.json" >/dev/null
 python3 -m json.tool "$REPO_ROOT/plugins/hotpot/.claude-plugin/plugin.json" >/dev/null
+test ! -e "$REPO_ROOT/skills/arch-review"
 
 for skill in "${STANDALONE[@]}"; do
   test -f "$REPO_ROOT/skills/$skill/SKILL.md"

@@ -4,7 +4,8 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SHARED_ROOT="${HOME}/.agents/skills"
 BACKUP_ROOT="${HOME}/.agents/backups/skills-$(date +%Y%m%d-%H%M%S)"
-SKILLS=(ai-reflect arch-coach arch-review commit human-review)
+SKILLS=(ai-reflect arch-coach commit human-review)
+RETIRED_SKILLS=(arch-review)
 BACKUP_CREATED=0
 
 backup_path() {
@@ -32,6 +33,14 @@ ensure_link() {
   ln -s "$source" "$target"
 }
 
+remove_matching_link() {
+  local target="$1"
+  local expected="$2"
+  if [[ -L "$target" && "$(readlink "$target")" == "$expected" ]]; then
+    rm "$target"
+  fi
+}
+
 mkdir -p "$SHARED_ROOT"
 for skill in "${SKILLS[@]}"; do
   source_path="$REPO_ROOT/skills/$skill"
@@ -40,6 +49,13 @@ for skill in "${SKILLS[@]}"; do
   ensure_link "$source_path" "$SHARED_ROOT/$skill" "agents/$skill"
   ensure_link "$SHARED_ROOT/$skill" "$HOME/.codex/skills/$skill" "codex/$skill"
   ensure_link "$SHARED_ROOT/$skill" "$HOME/.claude/skills/$skill" "claude/$skill"
+done
+
+for skill in "${RETIRED_SKILLS[@]}"; do
+  shared="$SHARED_ROOT/$skill"
+  remove_matching_link "$HOME/.codex/skills/$skill" "$shared"
+  remove_matching_link "$HOME/.claude/skills/$skill" "$shared"
+  remove_matching_link "$shared" "$REPO_ROOT/skills/$skill"
 done
 
 echo "已为 Codex、Claude Code 和 ZCode 桌面客户端安装 ${#SKILLS[@]} 个共享技能。"

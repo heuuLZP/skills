@@ -2,7 +2,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILLS=(ai-reflect arch-coach arch-review commit human-review)
+SKILLS=(ai-reflect arch-coach commit human-review)
+RETIRED_SKILLS=(arch-review)
 
 remove_matching_link() {
   local target="$1"
@@ -12,7 +13,7 @@ remove_matching_link() {
   fi
 }
 
-for skill in "${SKILLS[@]}"; do
+for skill in "${SKILLS[@]}" "${RETIRED_SKILLS[@]}"; do
   shared="$HOME/.agents/skills/$skill"
   remove_matching_link "$HOME/.codex/skills/$skill" "$shared"
   remove_matching_link "$HOME/.claude/skills/$skill" "$shared"

@@ -1,6 +1,6 @@
 ---
 name: arch-coach
-description: Use only when the user explicitly invokes $arch-coach to practice architecture understanding, diagnosis, decision-making, or post-implementation review at any system scope. Do not trigger for ordinary architecture questions, code review, planning, or implementation requests.
+description: Use only when the user explicitly invokes $arch-coach to practice architecture understanding, diagnosis, decision-making, or post-implementation review and blind-spot reflection at any system scope. Do not trigger for ordinary architecture questions, code review, planning, or implementation requests.
 ---
 
 # Architecture Coach
@@ -123,11 +123,19 @@ understand -> diagnose -> decide -> review
 
 ## `review`：实施复盘
 
-复盘已经实施的需求、改造或线上问题。读取原始判断、实际改动、测试与运行反馈；若原始判断没有记录，明确这一限制并从现有证据重建，不虚构预期。
+复盘已经实施的需求、改造或线上问题，同时训练用户发现架构盲点。按以下流程进行：
 
-检查实际影响是否符合预期、原问题是否改善、是否引入新依赖或风险，以及哪些假设被验证或推翻。最后更新对系统的认识，并给出一个可在后续工作中练习的问题，而不是追加泛化改进清单。
+1. 读取原始判断、实际 Git diff、相关测试与运行反馈；线上问题使用事故记录、日志和修复证据。若原始判断没有记录，明确限制并从现有证据重建，不虚构预期。
+2. 判断对象是否值得架构复盘。若只是错字、简单配置或纯样式调整，说明收益有限并停止。缺少需求背景时只问一句：“一句话说下这个需求是做什么的？”
+3. 检查实际影响是否符合预期、原问题是否改善、是否引入新依赖或风险，以及哪些假设被验证或推翻。
+4. 按业务、应用、技术三层扫描，每层标记 `有盲点 / 已覆盖 / 不适用`，并给一条来自需求或证据的理由：
+   - 业务：问题、用户、价值、边界和核心路径是否清楚；内部重构可不适用。
+   - 应用：模块职责、通信方式和变更隔离是否清楚；单模块且无边界问题可不适用。
+   - 技术：性能、可用性、成本等约束，以及备选方案和选择理由是否清楚；无技术决策可不适用。
+5. 若有盲点，按认知收益、差距大小和近期可练习性只选择一个，输出当前做法、架构师的分析路径及差距。若全部已覆盖，指出最好的做法；若全部不适用，直接结束。
+6. 更新对系统的认识，并给出一道 5 分钟内可思考、下个需求可复用、无需写代码的问题，不追加泛化改进清单。
 
-输出：
+基础复盘输出：
 
 ```text
 原始判断：
@@ -138,4 +146,36 @@ understand -> diagnose -> decide -> review
 新增问题：
 模型更新：
 后续练习：
+```
+
+聚焦盲点时追加：
+
+```text
+对比分析 — [业务 / 应用 / 技术]
+当前做法：
+架构师的分析路径：
+差距及影响：
+思考题：
+```
+
+### 可选记录
+
+默认不写复盘记录。只有用户明确要求保存本次结果时，才解析记录位置并追加内容：
+
+1. 若存在 `~/.agents/data/arch-coach/config.json`，读取其中的 `retrospectivesPath` 并展开 `~`。
+2. 配置缺失时使用 `~/.agents/data/arch-coach/retrospectives.md`；只有用户要求设置其他长期路径时才写配置。
+3. 路径不可读写时报告问题并请求替代路径，不静默回退。
+4. 已有记录时读取最后一道思考题，询问用户本次是否使用了该思考方式；首次记录跳过。
+5. 不读取、迁移或删除 `~/.agents/data/arch-review/` 下的旧数据。
+
+记录文件不存在时先写 `# Architecture Retrospectives`，再追加：
+
+```markdown
+## [date] — [requirement name]
+
+**聚焦层面**: [layer]
+**盲点**: [一句话]
+**对比**: [当前做法] vs [架构师的分析路径] — [差距]
+**思考题**: [问题]
+**代码变更**: [commit 或文件]
 ```
