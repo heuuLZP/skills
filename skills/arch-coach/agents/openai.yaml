@@ -1,5 +1,5 @@
 interface:
-  display_name: "Architecture Coach"
+  display_name: "Arch Coach"
   short_description: "用四阶段训练架构理解、问题诊断、方案取舍、实施复盘与文档归档能力"
   default_prompt: "Use $arch-coach to understand an architecture, diagnose its costs, compare trade-offs, or review a change; preview first and archive only to a confirmed target."
 
