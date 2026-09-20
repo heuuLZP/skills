@@ -9,7 +9,7 @@
 | `ai-reflect` | 回顾近期 AI 使用习惯、协作质量或依赖程度 | 基于 Claude Code 与 Codex 会话生成四维协作复盘报告 | “分析我最近一周使用 AI 的情况” |
 | `arch-coach` | 显式调用后，按阶段练习架构理解、诊断、决策或复盘 | 基于真实证据完成一次架构训练；review 同时支持改动复盘和架构盲点训练 | `$arch-coach diagnose 诊断这个项目的权限架构问题` |
 | `commit` | 需要分析 Git 改动、生成提交信息或拆分提交 | 合理暂存并创建一个或多个 Git commit | “提交当前改动” |
-| `human-review` | 显式选择该 skill，逐批理解、修复和批准待提交改动 | AI 先建立改动地图并评估工程质量，获授权后修复问题并逐批提交 | `/human-review` |
+| `human-review` | 显式选择该 skill，审阅、修复并提交待处理改动 | AI 按提交职责自动完成闭环；全绿直接提交，仅核心决策暂停 | `/human-review` |
 
 `arch-coach` 和 `human-review` 仅在用户通过技能选择器或显式写出 skill 名称时启用。`arch-coach` 使用 `understand → diagnose → decide → review` 四个独立阶段，阶段之间不会自动串联；其中 `review` 已包含原 `arch-review` 的 Git diff 扫描、三层盲点对比、思考题和可选记录能力，原 `$arch-review` 入口不再提供。普通架构问题不加载该训练流程。其余独立 skill 可以直接描述任务，也可以在提示词中明确指定名称，客户端会根据 description 判断是否加载完整工作流。
 
