@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SHARED_ROOT="${HOME}/.agents/skills"
 BACKUP_ROOT="${HOME}/.agents/backups/skills-$(date +%Y%m%d-%H%M%S)"
-SKILLS=(ai-reflect arch-coach commit human-review)
+SKILLS=(ai-reflect arch-coach commit human-review done)
 RETIRED_SKILLS=(arch-review)
 BACKUP_CREATED=0
 
