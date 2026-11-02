@@ -9,6 +9,8 @@ description: 仅当用户显式选择或点名 human-review（技能选择器、
 
 显式调用即授权在当前待处理改动范围内完成闭环：按精确路径暂存、审阅、执行直接相关验证、修复可确定问题并提交。不要对每个批次、修复或提交重复请求确认。
 
+**执行方式**：在主会话中调用时，优先 spawn `fresh-reviewer` 子代理执行本技能（全新上下文，避免同会话自我审查污染）。当前执行者已是 fresh-reviewer、用户要求就地快速审阅、或子代理不可用（非 ZCode 环境）时，就地执行。
+
 ## 不可破坏的边界
 
 - 禁止 `git add .`、`git add -A`、`git commit -a`、`git reset --hard`、`git checkout --`、`git restore <path>` 及破坏性等价命令。
